@@ -1,0 +1,538 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>JS模块化开发3：require.js的使用以及压缩策略 - 胖萝卜的菜园</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="胖乎乎的萝卜"><meta name=description content="JS模块化开发之require.js的使用以及压缩策略"><meta name=keywords content="js,module,amd,requirejs"><link rel=canonical href=https://cirplan.github.io/post/2015/10-19-js-requirejs/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link href=/sass/main.min.13b755479625487471ed020b20c7d7f5fa3af757dd4c943c3aedb3ae08d2fe9f.css rel=stylesheet><meta property="og:title" content="JS模块化开发3：require.js的使用以及压缩策略"><meta property="og:description" content="JS模块化开发之require.js的使用以及压缩策略"><meta property="og:type" content="article"><meta property="og:url" content="https://cirplan.github.io/post/2015/10-19-js-requirejs/"><meta property="article:section" content="post"><meta property="article:published_time" content="2015-10-19T00:48:53+08:00"><meta property="article:modified_time" content="2015-10-19T00:48:53+08:00"><meta itemprop=name content="JS模块化开发3：require.js的使用以及压缩策略"><meta itemprop=description content="JS模块化开发之require.js的使用以及压缩策略"><meta itemprop=datePublished content="2015-10-19T00:48:53+08:00"><meta itemprop=dateModified content="2015-10-19T00:48:53+08:00"><meta itemprop=wordCount content="2630"><meta itemprop=keywords content="js,module,amd,requirejs,"><meta name=twitter:card content="summary"><meta name=twitter:title content="JS模块化开发3：require.js的使用以及压缩策略"><meta name=twitter:description content="JS模块化开发之require.js的使用以及压缩策略"></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>萝卜菜园</a></div><div class=mobile-navbar-icon id=mobile-navbar-icon><span></span>
+<span></span>
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=https://github.com/cirplan><li class=mobile-menu-item>Github</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>萝卜菜园</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/cirplan>Github</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>JS模块化开发3：require.js的使用以及压缩策略</h1><div class=post-meta><span class=post-time>2015-10-19</span><div class=post-category><a href=/categories/js/>JS</a></div><span class=more-meta>约 2630 字</span>
+<span class=more-meta>预计阅读 6 分钟</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#本文内容>本文内容：</a></li><li><a href=#基本使用>基本使用</a><ul><li><a href=#11-加载>1.1 加载</a></li><li><a href=#12-定义主模块>1.2 定义主模块</a></li><li><a href=#13-requirejs配置>1.3 require.js配置</a></li><li><a href=#14-amd模块写法>1.4 AMD模块写法</a></li></ul></li><li><a href=#2如何打包压缩>2.如何打包压缩</a><ul><li><a href=#21-下载rjs>2.1 下载r.js</a></li><li><a href=#22-文件目录>2.2 文件目录</a></li></ul></li></ul></nav></div></div><div class=post-outdated><div class=warn><p>【注意】最后更新于 <span class=timeago datetime=2015-10-19T00:48:53 title=2015-10-19>2015-10-19, </span>，文中内容可能已过时，请谨慎使用。</p></div></div><div class=post-content><p><a href=http://requirejs.org/>require.js</a>是遵循AMD规范的模块加载器，这里简单说说其用法和压缩策略。</p><h1 id=本文内容>本文内容：</h1><p>1.基本使用</p><p>2.如何打包压缩</p><h1 id=基本使用>基本使用</h1><h2 id=11-加载>1.1 加载</h2><p>要使用require.js前提当然是先下载好或引入CDN。若下载好后，直接引入：</p><pre><code>&lt;script data-main=&quot;index&quot; src=&quot;/js/require.js&quot;&gt;&lt;/script&gt;
+</code></pre><p>这里表示引入require.js后，把index.js作为程序的主模块，加载并执行。如果怕页面阻塞，可以把这段代码放到页面底部。</p><h2 id=12-定义主模块>1.2 定义主模块</h2><p>定义主模块可以使用<code>require</code>：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// main.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>require</span><span class=p>([</span><span class=s1>&#39;moduleA&#39;</span><span class=p>,</span> <span class=s1>&#39;moduleB&#39;</span><span class=p>,</span> <span class=s1>&#39;moduleC&#39;</span><span class=p>],</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>moduleA</span><span class=p>,</span> <span class=nx>moduleB</span><span class=p>,</span> <span class=nx>moduleC</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// some code here
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>也可以使用常规的定义模块的方式，用<code>define</code>定义，因为<code>data-main</code>已经指定这个是主模块了：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// main.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>([</span><span class=s1>&#39;moduleA&#39;</span><span class=p>,</span> <span class=s1>&#39;moduleB&#39;</span><span class=p>,</span> <span class=s1>&#39;moduleC&#39;</span><span class=p>],</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>moduleA</span><span class=p>,</span> <span class=nx>moduleB</span><span class=p>,</span> <span class=nx>moduleC</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// some code here
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>但有一种情况是一定要使用<code>require</code>定义的，下面会说到。</p><h2 id=13-requirejs配置>1.3 require.js配置</h2><p>利用<code>require.config()</code>，对require.js进行基本配置，<code>require.config()</code>要放在主模块的头部，主要作用如下：</p><ul><li>定义基本目录；</li><li>对常用模块定义别名，方便引用；</li><li>定义文件版本号；</li><li>处理非AMD规范的模块；</li><li>处理非AMD规范并对其他模块产生依赖的模块；</li></ul><p>下面我们看例子：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// require.js config
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>require</span><span class=p>.</span><span class=nx>config</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>baseUrl</span><span class=o>:</span> <span class=s1>&#39;/common/js&#39;</span><span class=p>,</span> <span class=c1>// 定义基本目录
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>urlArgs</span><span class=o>:</span> <span class=s1>&#39;v=1.1.0&#39;</span><span class=p>,</span>  <span class=c1>// 定义请求js文件版本号
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>paths</span><span class=o>:</span> <span class=p>{</span> <span class=c1>// 常用模块别名
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=s1>&#39;angular&#39;</span>    <span class=o>:</span> <span class=s1>&#39;lib/angular.min&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;sanitize&#39;</span>   <span class=o>:</span> <span class=s1>&#39;lib/angular-sanitize.min&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span>      <span class=o>:</span> <span class=s1>&#39;lib/zepto.min&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 若加载模块不符合AMD规范，直接返回全局变量，则用下面方式封装
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 切记：exports的变量一定要和返回的 全局变量名称 一致
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>shim</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;angular&#39;</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;angular&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;sanitize&#39;</span><span class=o>:</span> <span class=p>{</span> <span class=c1>// 对非AMD规范，对其他模块产生依赖依赖的要加上
+</span></span></span><span class=line><span class=cl><span class=c1></span>          <span class=nx>deps</span><span class=o>:</span> <span class=p>[</span><span class=s1>&#39;angular&#39;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>          <span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Sanitize&#39;</span>
+</span></span><span class=line><span class=cl>          <span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>上面这个就是一个很常规的require.config配置。但在实际开发中，我们是不会把这段配置加在每个主模块的头部的，不然要修改点东西，就要一个一个改，岂不是要死的心都有。</p><p>一般把上面的配置信息提成一个公共js，在require.js加载前加载。</p><pre><code>&lt;script src=&quot;/js/config.js&quot;&gt;&lt;/script&gt;
+&lt;script data-main=&quot;index/index&quot; src=&quot;/js/require.js&quot;&gt;&lt;/script&gt;
+</code></pre><p>但如果直接把上面这段配置放在<code>config.js</code>里会报<code>require is undefined</code>。想想也是，require.js都还没有加载。所以我们修改下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// require.js config
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>var</span> <span class=nx>require</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>baseUrl</span><span class=o>:</span> <span class=s1>&#39;/common/js&#39;</span><span class=p>,</span> <span class=c1>// 定义基本目录
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>urlArgs</span><span class=o>:</span> <span class=s1>&#39;v=1.1.0&#39;</span><span class=p>,</span>  <span class=c1>// 定义请求js文件版本号
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>paths</span><span class=o>:</span> <span class=p>{</span> <span class=c1>// 常用模块别名
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=s1>&#39;angular&#39;</span>    <span class=o>:</span> <span class=s1>&#39;lib/angular.min&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;sanitize&#39;</span>   <span class=o>:</span> <span class=s1>&#39;lib/angular-sanitize.min&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span>      <span class=o>:</span> <span class=s1>&#39;lib/zepto.min&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 若加载模块不符合AMD规范，直接返回全局变量，则用下面方式封装
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// 切记：exports的变量一定要和返回的 全局变量名称 一致
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>shim</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;angular&#39;</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;angular&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;sanitize&#39;</span><span class=o>:</span> <span class=p>{</span> <span class=c1>// 对非AMD规范，对其他模块产生依赖依赖的要加上
+</span></span></span><span class=line><span class=cl><span class=c1></span>          <span class=nx>deps</span><span class=o>:</span> <span class=p>[</span><span class=s1>&#39;angular&#39;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>          <span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Sanitize&#39;</span>
+</span></span><span class=line><span class=cl>          <span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span></code></pre></td></tr></table></div></div><p>这样就ok啦，现在可以想怎么折腾就怎么折腾了。</p><h2 id=14-amd模块写法>1.4 AMD模块写法</h2><p>关于AMD模块的定义，上一篇有介绍。直接定义在<code>define</code>函数中。如我们要定义url模块：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// url.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>(</span><span class=kd>function</span> <span class=p>(){</span>
+</span></span><span class=line><span class=cl>　　<span class=kd>var</span> <span class=nx>getId</span> <span class=o>=</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>key</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=p>...</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>　　<span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>getId</span><span class=o>:</span> <span class=nx>getId</span>
+</span></span><span class=line><span class=cl>　　<span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>使用方法如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// main.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>require</span><span class=p>([</span><span class=s1>&#39;url&#39;</span><span class=p>],</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>url</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>　　<span class=nx>alert</span><span class=p>(</span><span class=nx>url</span><span class=p>.</span><span class=nx>getId</span><span class=p>(</span><span class=s1>&#39;index&#39;</span><span class=p>));</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>若定义有依赖的模块：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>([</span><span class=s1>&#39;util&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>util</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nx>each</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>        <span class=nx>util</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=p>...</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>each</span> <span class=o>:</span> <span class=nx>each</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h1 id=2如何打包压缩>2.如何打包压缩</h1><p>由于使用模块化，文件会被分成很多个，这样在浏览器端无疑会产生很多HTTP请求，会让用户的等待时间加长。对于这个问题，require.js也提出了用<code>r.js</code>合并压缩的方案。下面介绍r.js的使用。</p><p>使用r.js要安装node.js环境，未安装的自行安装。</p><h2 id=21-下载rjs>2.1 下载r.js</h2><p>直接下载戳<a href=http://requirejs.org/docs/release/2.1.11/r.js>这里</a>。或者直接用npm 安装</p><pre><code>npm install -g requirejs
+</code></pre><h2 id=22-文件目录>2.2 文件目录</h2><p>下面是示例的test目录：</p><pre><code>test
+    -html
+        -index.html
+    -dist
+    -js
+        -index
+            -index.js
+            -index2.js
+        -lib
+            -require.js
+            -zepto.js
+        -util
+            -common.js
+            -url.js
+        -config.js
+    -r.js
+    -build.js
+</code></pre><p>其中<code>r.js</code>放在根目录，<code>build.js</code>为压缩配置文件，<code>dist</code>为压缩后的输出目录。下面为对应js文件的内容：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// index.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>([</span><span class=s1>&#39;zepto&#39;</span><span class=p>,</span> <span class=s1>&#39;index/index2&#39;</span><span class=p>,</span> <span class=s1>&#39;url&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>$</span><span class=p>,</span> <span class=nx>index2</span><span class=p>,</span> <span class=nx>url</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;index&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// index2.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>([</span><span class=s1>&#39;url&#39;</span><span class=p>,</span> <span class=s1>&#39;util/common&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>url</span><span class=p>,</span> <span class=nx>common</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;index2&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// common.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>([],</span> <span class=kd>function</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;common&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// url.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>([</span><span class=s1>&#39;zepto&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>$</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;url&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// config.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>var</span> <span class=nx>require</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>baseUrl</span><span class=o>:</span> <span class=s2>&#34;../js&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>paths</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;zepto&#34;</span><span class=o>:</span> <span class=s2>&#34;lib/zepto&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;url&#34;</span><span class=o>:</span> <span class=s2>&#34;util/url&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=nx>shim</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span><span class=o>:</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        　　<span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span></code></pre></td></tr></table></div></div><p>下面我们来看看如何压缩。</p><p><strong>需求1</strong> 把index.js及其依赖项合并压缩成一个js</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>baseUrl</span><span class=o>:</span> <span class=s1>&#39;./js&#39;</span><span class=p>,</span>  <span class=c1>// 设置基本目录
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>optimize</span><span class=o>:</span> <span class=s1>&#39;none&#39;</span><span class=p>,</span> <span class=c1>// 压缩方式：不压缩
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// path和shim配置要和config.js一样
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>paths</span><span class=o>:</span> <span class=p>{</span> 
+</span></span><span class=line><span class=cl>　　　　　　<span class=s2>&#34;zepto&#34;</span><span class=o>:</span> <span class=s2>&#34;lib/zepto&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>　　　　　　<span class=s2>&#34;url&#34;</span><span class=o>:</span> <span class=s2>&#34;util/url&#34;</span>
+</span></span><span class=line><span class=cl>　　 <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>shim</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span><span class=o>:</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        　　<span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>name</span><span class=o>:</span> <span class=s1>&#39;index/index&#39;</span><span class=p>,</span> <span class=c1>//设置要压缩的单个文件
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>out</span> <span class=o>:</span> <span class=s1>&#39;js/index/index-build.js&#39;</span> <span class=c1>// 设置要输出的文件名
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>})</span>	
+</span></span></code></pre></td></tr></table></div></div><p>在命令行进入到项目的根目录，执行：</p><pre><code>node r.js -o build.js
+</code></pre><p>就可以看到在index目录下会生成新的文件，其中最后一部分为：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=p>...</span>
+</span></span><span class=line><span class=cl>  <span class=p>;[</span><span class=s1>&#39;swipe&#39;</span><span class=p>,</span> <span class=s1>&#39;swipeLeft&#39;</span><span class=p>,</span> <span class=s1>&#39;swipeRight&#39;</span><span class=p>,</span> <span class=s1>&#39;swipeUp&#39;</span><span class=p>,</span> <span class=s1>&#39;swipeDown&#39;</span><span class=p>,</span> <span class=s1>&#39;doubleTap&#39;</span><span class=p>,</span> <span class=s1>&#39;tap&#39;</span><span class=p>,</span> <span class=s1>&#39;singleTap&#39;</span><span class=p>,</span> <span class=s1>&#39;longTap&#39;</span><span class=p>].</span><span class=nx>forEach</span><span class=p>(</span><span class=kd>function</span><span class=p>(</span><span class=nx>m</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=nx>$</span><span class=p>.</span><span class=nx>fn</span><span class=p>[</span><span class=nx>m</span><span class=p>]</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(</span><span class=nx>callback</span><span class=p>){</span> <span class=k>return</span> <span class=k>this</span><span class=p>.</span><span class=nx>bind</span><span class=p>(</span><span class=nx>m</span><span class=p>,</span> <span class=nx>callback</span><span class=p>)</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>})</span>
+</span></span><span class=line><span class=cl><span class=p>})(</span><span class=nx>Zepto</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=s2>&#34;zepto&#34;</span><span class=p>,</span> <span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>global</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kd>var</span> <span class=nx>ret</span><span class=p>,</span> <span class=nx>fn</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>ret</span> <span class=o>||</span> <span class=nx>global</span><span class=p>.</span><span class=nx>Zepto</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=p>}(</span><span class=k>this</span><span class=p>)));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=s1>&#39;url&#39;</span><span class=p>,[</span><span class=s1>&#39;zepto&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>$</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;url&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=s1>&#39;util/common&#39;</span><span class=p>,[],</span> <span class=kd>function</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;common&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=s1>&#39;index/index2&#39;</span><span class=p>,[</span><span class=s1>&#39;url&#39;</span><span class=p>,</span> <span class=s1>&#39;util/common&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>url</span><span class=p>,</span> <span class=nx>common</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;index2&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=s1>&#39;index/index&#39;</span><span class=p>,[</span><span class=s1>&#39;zepto&#39;</span><span class=p>,</span> <span class=s1>&#39;index/index2&#39;</span><span class=p>,</span> <span class=s1>&#39;url&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>$</span><span class=p>,</span> <span class=nx>index2</span><span class=p>,</span> <span class=nx>url</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;index&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>需求2</strong> 把index.js和index2.js批量分别合并</p><p>因为在实际开发中很难像上面一个一个合并，所以批量合并是比较好得方法。修改build.js如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>baseUrl</span><span class=o>:</span> <span class=s1>&#39;./js&#39;</span><span class=p>,</span>  <span class=c1>// 设置基本目录
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>dir</span><span class=o>:</span> <span class=s1>&#39;./dist&#39;</span><span class=p>,</span> <span class=c1>// 设置输出目录
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>optimize</span><span class=o>:</span> <span class=s1>&#39;none&#39;</span><span class=p>,</span> <span class=c1>// 压缩方式：不压缩
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// path和shim配置要和config.js一样
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>paths</span><span class=o>:</span> <span class=p>{</span> 
+</span></span><span class=line><span class=cl>　　　　　　<span class=s2>&#34;zepto&#34;</span><span class=o>:</span> <span class=s2>&#34;lib/zepto&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>　　　　　　<span class=s2>&#34;url&#34;</span><span class=o>:</span> <span class=s2>&#34;util/url&#34;</span>
+</span></span><span class=line><span class=cl>　　 <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>shim</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span><span class=o>:</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        　　<span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>modules</span> <span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>name</span><span class=o>:</span> <span class=s1>&#39;index/index&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>name</span><span class=o>:</span> <span class=s1>&#39;index/index2&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=p>})</span>
+</span></span></code></pre></td></tr></table></div></div><p>这样会在<code>dist</code>目录下生成一系列文件，如下图：</p><p><img src=/post/2015/images/20151019requirejs/out1.png alt></p><p>对于module数组里不要求合并的js，是和原来一样的。</p><p>调用直接调用这样就这样了，config.js都不用加载了：</p><pre><code>&lt;script data-main=&quot;../dist/index/index.js&quot; src=&quot;../js/lib/require.js&quot;&gt;&lt;/script&gt;
+</code></pre><p><strong>需求3</strong> 把zepto.js和url.js等公用文件合并成一个文件，index.js和index2.js如果有依赖这些文件时的，在合并的时候自动忽略</p><p>因为把所有页面的js都压缩成一个，公用的部分每次都加载，未免会增加等待时间，所以把公用部分抽出来是一个比较好的选择。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>baseUrl</span><span class=o>:</span> <span class=s1>&#39;./js&#39;</span><span class=p>,</span>  <span class=c1>// 设置基本目录
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>dir</span><span class=o>:</span> <span class=s1>&#39;./dist&#39;</span><span class=p>,</span> <span class=c1>// 设置输出目录
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>optimize</span><span class=o>:</span> <span class=s1>&#39;none&#39;</span><span class=p>,</span> <span class=c1>// 压缩方式：不压缩
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// path和shim配置要和config.js一样
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>paths</span><span class=o>:</span> <span class=p>{</span> 
+</span></span><span class=line><span class=cl>　　　　　　<span class=s2>&#34;zepto&#34;</span><span class=o>:</span> <span class=s2>&#34;lib/zepto&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>　　　　　　<span class=s2>&#34;url&#34;</span><span class=o>:</span> <span class=s2>&#34;util/url&#34;</span>
+</span></span><span class=line><span class=cl>　　 <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>shim</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span><span class=o>:</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        　　<span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>modules</span> <span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>name</span><span class=o>:</span> <span class=s1>&#39;lib/common&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=nx>create</span><span class=o>:</span> <span class=kc>true</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=nx>include</span><span class=o>:</span> <span class=p>[</span><span class=s1>&#39;zepto&#39;</span><span class=p>,</span> <span class=s1>&#39;url&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>name</span><span class=o>:</span> <span class=s1>&#39;index/index&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=nx>exclude</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>                <span class=s1>&#39;zepto&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                <span class=s1>&#39;url&#39;</span>
+</span></span><span class=line><span class=cl>            <span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>name</span><span class=o>:</span> <span class=s1>&#39;index/index2&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=nx>exclude</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>                <span class=s1>&#39;zepto&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                <span class=s1>&#39;url&#39;</span>
+</span></span><span class=line><span class=cl>            <span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=p>})</span>
+</span></span></code></pre></td></tr></table></div></div><p>可以看到<code>dist/lib</code>下生成了<code>common.js</code>，而index.js变成了：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// index.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>(</span><span class=s1>&#39;util/common&#39;</span><span class=p>,[],</span> <span class=kd>function</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;common&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=s1>&#39;index/index2&#39;</span><span class=p>,[</span><span class=s1>&#39;url&#39;</span><span class=p>,</span> <span class=s1>&#39;util/common&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>url</span><span class=p>,</span> <span class=nx>common</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;index2&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=nx>require</span><span class=p>([</span><span class=s1>&#39;zepto&#39;</span><span class=p>,</span> <span class=s1>&#39;index/index2&#39;</span><span class=p>,</span> <span class=s1>&#39;url&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>$</span><span class=p>,</span> <span class=nx>index2</span><span class=p>,</span> <span class=nx>url</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;index&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=s2>&#34;index/index&#34;</span><span class=p>,</span> <span class=kd>function</span><span class=p>(){});</span>
+</span></span></code></pre></td></tr></table></div></div><p>修改<code>config.js</code>如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=kd>var</span> <span class=nx>require</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>baseUrl</span><span class=o>:</span> <span class=s2>&#34;../js&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>paths</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;zepto&#34;</span><span class=o>:</span> <span class=s2>&#34;../dist/lib/common&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;url&#34;</span><span class=o>:</span> <span class=s2>&#34;../dist/lib/common&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>shim</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span><span class=o>:</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        　　<span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span></code></pre></td></tr></table></div></div><p>然后直接请求:</p><pre><code>&lt;script src=&quot;../js/config.js&quot;&gt;&lt;/script&gt;
+&lt;script data-main=&quot;../dist/index/index.js&quot; src=&quot;../js/lib/require.js&quot;&gt;&lt;/script&gt;
+</code></pre><p>这样就有公用模块了。更多r.js的配置看<a href=https://github.com/jrburke/r.js/blob/master/build/example.build.js>这里</a>。</p><p>如果觉得requrejs压缩后还是很大，可以尝试使用require.js作者的另一个开源项目<a href=https://github.com/jrburke/almond>almond.js</a>。almond.js压缩后最小为1k左右。
+但有一个很重要的限制：所有模块必须压缩在一个文件里。almond.js的使用可以看<a href=http://levi.yii.so/archives/3450>这里</a>。</p><p>最后，选择哪种压缩策略看项目的具体需要。</p></div><footer class=post-footer><div class=post-tags><a href=/tags/js/>js</a>
+<a href=/tags/module/>module</a>
+<a href=/tags/amd/>amd</a>
+<a href=/tags/requirejs/>requirejs</a></div><nav class=post-nav><a class=prev href=/post/2015/11-30-html5-audio/><i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">Audio在移动端的实践</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/2015/10-18-js-amd-cmd/><span class="next-text nav-default">JS模块化开发2：AMD与CMD规范</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=cirplan/cirplan.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
+2015 -
+2022<span class=heart>🥕</span><span>胖乎乎的萝卜</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>

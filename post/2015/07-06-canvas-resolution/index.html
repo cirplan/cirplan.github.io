@@ -1,0 +1,98 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>canvas分辨率问题 - 胖萝卜的菜园</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="胖乎乎的萝卜"><meta name=description content="canvas,分辨率问题"><meta name=keywords content="拔萝卜,胖萝卜的菜园,blog"><link rel=canonical href=https://cirplan.github.io/post/2015/07-06-canvas-resolution/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link href=/sass/main.min.13b755479625487471ed020b20c7d7f5fa3af757dd4c943c3aedb3ae08d2fe9f.css rel=stylesheet><meta property="og:title" content="canvas分辨率问题"><meta property="og:description" content="canvas,分辨率问题"><meta property="og:type" content="article"><meta property="og:url" content="https://cirplan.github.io/post/2015/07-06-canvas-resolution/"><meta property="article:section" content="post"><meta property="article:published_time" content="2015-07-06T00:15:09+08:00"><meta property="article:modified_time" content="2015-07-06T00:15:09+08:00"><meta itemprop=name content="canvas分辨率问题"><meta itemprop=description content="canvas,分辨率问题"><meta itemprop=datePublished content="2015-07-06T00:15:09+08:00"><meta itemprop=dateModified content="2015-07-06T00:15:09+08:00"><meta itemprop=wordCount content="1907"><meta itemprop=keywords content="js,canvas,"><meta name=twitter:card content="summary"><meta name=twitter:title content="canvas分辨率问题"><meta name=twitter:description content="canvas,分辨率问题"></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>萝卜菜园</a></div><div class=mobile-navbar-icon id=mobile-navbar-icon><span></span>
+<span></span>
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=https://github.com/cirplan><li class=mobile-menu-item>Github</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>萝卜菜园</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/cirplan>Github</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>canvas分辨率问题</h1><div class=post-meta><span class=post-time>2015-07-06</span><div class=post-category><a href=/categories/js/>JS</a></div><span class=more-meta>约 1907 字</span>
+<span class=more-meta>预计阅读 4 分钟</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#设备像素和css像素>设备像素和CSS像素</a></li><li><a href=#解决方法>解决方法</a><ul><li><a href=#devicepixelratio>devicePixelRatio</a></li><li><a href=#webkitbackingstorepixelratio>webkitBackingStorePixelRatio</a></li></ul></li><li><a href=#实践>实践</a></li></ul></nav></div></div><div class=post-outdated><div class=warn><p>【注意】最后更新于 <span class=timeago datetime=2015-07-06T00:15:09 title=2015-07-06>2015-07-06, </span>，文中内容可能已过时，请谨慎使用。</p></div></div><div class=post-content><p>过程：最近尝试用H5的canvas写了个小游戏，然后加载图片的时候发现，在电脑上图片是很清晰的，但到了手机上就看到比较模糊（图片都是实际大小的2倍）。</p><p>再现：demo代码如下</p><pre><code>window.onload = function () {
+	var canvas = document.getElementById('canvas1');
+	var ctx = canvas.getContext(&quot;2d&quot;);
+	var width, height;
+	width = 320;
+	height = 568;
+
+	canvas.style.width = width+'px';
+	canvas.style.height = height + 'px';
+	canvas.width = width; 
+	canvas.height = height;
+	var img = new Image();
+	img.src = &quot;../img/s6_1.png&quot;;
+	img.onload = function () {  
+	    ctx.drawImage(img, 20, 20, img.width/2, img.height/2); 
+	}  
+}();
+</code></pre><p>先看效果图（左边为电脑模拟，右边为手机）：</p><p><img src=/post/2015/images/20150706canvas/1_pc.png alt=电脑>
+<img src=/post/2015/images/20150706canvas/2_phone.jpg alt=手机></p><p>有没有发现什么？认真看就会发现：右边的图比较模糊（如果实在没发现请自戳双目，为什么？因为留着没用）。</p><p>所以现在问题是：<code>为什么canvas加载图片在手机上会显示模糊？</code></p><p>首先我们看看上面的代码：</p><pre><code>canvas.style.width = width+'px';
+canvas.style.height = height + 'px';
+canvas.width = width; 
+canvas.height = height;
+</code></pre><p>这样子写是不是有点多此一举了？闲的蛋疼？为了证明不是蛋疼，首先我们要了解<code>设备像素</code>和<code>CSS像素</code>。</p><h1 id=设备像素和css像素>设备像素和CSS像素</h1><p>设备像素就是我们平时所说的设备真实像素，像iPhone5s的 640 x 1136。但一般开发者是不怎么关心这个数值的，因为有CSS像素。</p><p>CSS像素是我们平时代码直接用的，iPhone5s的CSS像素为 320 x 568（这样子应该懂了吧）。</p><p>由于设备像素和CSS像素不一样，所以设备会用几个设备像素表示一个CSS像素。像iPhone5s就是4个设备像素点表示一个CSS像素。如图：</p><p><img src=/post/2015/images/20150706canvas/3_px.gif alt=像素比例></p><p>这里就有一个很常见的问题：为什么图片在retina屏中会模糊？</p><p>例如要显示 100px x 100px 的图片，如果切出来的图片也是 100px x 100px，那么在iPhone5s下是肯定会模糊的。
+因为iPhone5s的 设备像素/CSS像素 比是2。所以它需要的图片实际大小为 200px x 200px。如果像现在这样大小不够呢？那像素点只能被扩充了。</p><p>什么是扩充？就是5s的4个设备像素点表示1个CSS像素点时候，本应该4个像素点都有各自的颜色的，但图片小了，那4个设备像素点都是复制成同一种颜色。十分简单粗暴的方法。</p><p><code>canvas的显示也是类似于图片，如果不够大就会被扩充。</code></p><p><code>canvas.width/height</code> 表示的是设备像素，而 <code>canvas.style.width/height</code> 表示的是CSS像素。所以设置<code>canvas.width/height==canvas.style.width/height</code>的时候，如果 设备像素/CSS像素 不是1，canvas就被扩充了，然后图片加载进去，虽然是2倍实际大小，但还是模糊掉了（这里没想通？再想想）。这样就很好解析刚刚的例子在电脑端没有模糊（我的电脑像素比是1），但在手机端却模糊了（还不明白？不是我的问题就是你的问题了）。</p><h1 id=解决方法>解决方法</h1><p>既然问题出现了，总是会有解决方法的。先看两个参数 <code>devicePixelRatio</code>和<code>webkitBackingStorePixelRatio</code>。</p><h2 id=devicepixelratio>devicePixelRatio</h2><p>devicePixelRatio是window下的属性，是 设备像素/CSS像素 的比值。下面列出了一些：</p><ul><li>iPhone5s 2</li><li>iPhone6 plus 3</li><li>nexus7 1.3 (非常奇葩)</li></ul><p>这个参数比较简单直观，不用多说。其实在chrome模拟手机浏览的时候，也有这个参数的，如图：</p><p><img src=/post/2015/images/20150706canvas/4_pc_px.png alt=chrome模拟像素比></p><p>上图中红色框中的就是这个像素比。</p><h2 id=webkitbackingstorepixelratio>webkitBackingStorePixelRatio</h2><p>webkitBackingStorePixelRatio是存在canvas context中（仅safari和chrome），该属性的值决定了浏览器在渲染canvas之前会用几个像素来存储画布信息。
+例如，在iOS6 safari中这个值为2，它要渲染 100px x 100px 的图片，首先会在内存中生成一张200x200的图片，然后浏览器渲染的时候，会按100x100的图片来渲染，
+因此就变成了200x200，正好和内存中的图片大小一致，因此在iOS的safari中不会出现失真的问题（有点绕口，慢慢理解）。</p><p>但是在iOS7 的safari中这个值又变成了1，是出于性能的考虑，详情可以看<a href=http://asciiwwdc.com/2013/sessions/600>这里</a>，搜索关键字‘backing’。</p><p>知道了这俩个参数，那接下来怎么玩？实践是检验真理的唯一标准。</p><h1 id=实践>实践</h1><p>修改之前的代码，把像素比加进去：</p><pre><code>var PIXEL_RATIO = (function () {
+    var ctx = document.createElement(&quot;canvas&quot;).getContext(&quot;2d&quot;),
+        dpr = window.devicePixelRatio || 1,
+        bsr = ctx.webkitBackingStorePixelRatio ||
+              ctx.mozBackingStorePixelRatio ||
+              ctx.msBackingStorePixelRatio ||
+              ctx.oBackingStorePixelRatio ||
+              ctx.backingStorePixelRatio || 1;
+
+    return dpr / bsr;
+})();
+
+window.onload = function () {
+	var canvas = document.getElementById('canvas1');
+	var ctx = canvas.getContext(&quot;2d&quot;);
+	var width, height;
+	width = 320;
+	height = 568;
+
+	canvas.style.width = width+'px';
+	canvas.style.height = height + 'px';
+	canvas.width = width * PIXEL_RATIO; 
+	canvas.height = height * PIXEL_RATIO;
+	var img = new Image();
+	img.src = &quot;../img/s6_1.png&quot;;
+	img.onload = function () {  
+	    ctx.drawImage(img, 20, 20, img.width/2, img.height/2); 
+	}  
+}();
+</code></pre><p>看看效果（左边为之前效果，右边为修改后效果）：</p><p><img src=/post/2015/images/20150706canvas/1_pc.png alt=之前>
+<img src=/post/2015/images/20150706canvas/5_pc.png alt=之后></p><p>发现了什么？图居然缩小了！我滴天，这是为什么？认真想想问题出在哪里。</p><p><code>因为CSS像素点被缩放了</code>，为什么会缩放？因为它是大爷，它想缩所以缩了。</p><p>所以解决方案是对canvas进行缩放，下面是完整版代码：</p><pre><code>var PIXEL_RATIO = (function () {
+	    var ctx = document.createElement(&quot;canvas&quot;).getContext(&quot;2d&quot;),
+	        dpr = window.devicePixelRatio || 1,
+	        bsr = ctx.webkitBackingStorePixelRatio ||
+	              ctx.mozBackingStorePixelRatio ||
+	              ctx.msBackingStorePixelRatio ||
+	              ctx.oBackingStorePixelRatio ||
+	              ctx.backingStorePixelRatio || 1;
+
+	    return dpr / bsr;
+})();
+
+window.onload = function () {
+	var canvas = document.getElementById('canvas1');
+	var ctx = canvas.getContext(&quot;2d&quot;);
+	var width, height;
+	width = 320;
+	height = 568;
+
+	canvas.style.width = width+'px';
+	canvas.style.height = height + 'px';
+	canvas.width = width * PIXEL_RATIO; 
+	canvas.height = height * PIXEL_RATIO;
+
+	ctx.scale(PIXEL_RATIO, PIXEL_RATIO);
+
+	var img = new Image();
+	img.src = &quot;../img/s6_1.png&quot;;
+	img.onload = function () {  
+	    ctx.drawImage(img, 20, 20); 
+	}  
+}();
+</code></pre><p>左边是电脑之前模拟的效果，右边是电脑现在模拟的效果：</p><p><img src=/post/2015/images/20150706canvas/1_pc.png alt=之前电脑>
+<img src=/post/2015/images/20150706canvas/7_pc.png alt=之后电脑></p><p>左边是手机之前的效果，右边是手机现在的效果：</p><p><img src=/post/2015/images/20150706canvas/2_phone.jpg alt=之前手机>
+<img src=/post/2015/images/20150706canvas/8_ph.jpg alt=之后手机></p><p>嗯，基本的解决方案就是这样。如果有问题，可以提出来～</p><p>参考：</p><ul><li><a href=http://blog.csdn.net/laijingyao881201/article/details/39505043>http://blog.csdn.net/laijingyao881201/article/details/39505043</a></li><li><a href=http://www.html5rocks.com/en/tutorials/canvas/hidpi/>http://www.html5rocks.com/en/tutorials/canvas/hidpi/</a></li></ul></div><footer class=post-footer><div class=post-tags><a href=/tags/js/>js</a>
+<a href=/tags/canvas/>canvas</a></div><nav class=post-nav><a class=prev href=/post/2015/10-17-js-module/><i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">JS模块化开发1：历史</span>
+<span class="prev-text nav-mobile">上一篇</span></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=cirplan/cirplan.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
+2015 -
+2022<span class=heart>🥕</span><span>胖乎乎的萝卜</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>

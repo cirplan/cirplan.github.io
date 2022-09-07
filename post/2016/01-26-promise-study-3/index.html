@@ -1,0 +1,274 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>Promise初级教程3：解析流程 - 胖萝卜的菜园</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="胖乎乎的萝卜"><meta name=description content="Promise初级教程3：解析流程"><meta name=keywords content="js,promise"><link rel=canonical href=https://cirplan.github.io/post/2016/01-26-promise-study-3/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link href=/sass/main.min.13b755479625487471ed020b20c7d7f5fa3af757dd4c943c3aedb3ae08d2fe9f.css rel=stylesheet><meta property="og:title" content="Promise初级教程3：解析流程"><meta property="og:description" content="Promise初级教程3：解析流程"><meta property="og:type" content="article"><meta property="og:url" content="https://cirplan.github.io/post/2016/01-26-promise-study-3/"><meta property="article:section" content="post"><meta property="article:published_time" content="2016-01-26T01:12:36+08:00"><meta property="article:modified_time" content="2016-01-26T01:12:36+08:00"><meta itemprop=name content="Promise初级教程3：解析流程"><meta itemprop=description content="Promise初级教程3：解析流程"><meta itemprop=datePublished content="2016-01-26T01:12:36+08:00"><meta itemprop=dateModified content="2016-01-26T01:12:36+08:00"><meta itemprop=wordCount content="1041"><meta itemprop=keywords content="js,promise,"><meta name=twitter:card content="summary"><meta name=twitter:title content="Promise初级教程3：解析流程"><meta name=twitter:description content="Promise初级教程3：解析流程"></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>萝卜菜园</a></div><div class=mobile-navbar-icon id=mobile-navbar-icon><span></span>
+<span></span>
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=https://github.com/cirplan><li class=mobile-menu-item>Github</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>萝卜菜园</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/cirplan>Github</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>Promise初级教程3：解析流程</h1><div class=post-meta><span class=post-time>2016-01-26</span><div class=post-category><a href=/categories/js/>js</a></div><span class=more-meta>约 1041 字</span>
+<span class=more-meta>预计阅读 3 分钟</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#23-promise-解析流程>2.3. Promise 解析流程</a><ul><li><a href=#231-如果-promise-和-x-指向相同的值-使用-typeerror-做为原因将-promise-拒绝如下>2.3.1 如果 promise 和 x 指向相同的值, 使用 TypeError 做为原因将 promise 拒绝，如下：</a></li><li><a href=#232-如果-x-是一个-promise--采用其状态>2.3.2 如果 x 是一个 promise , 采用其状态:</a><ul><li><a href=#233-如果-x-是一个对象或一个函数>2.3.3 如果 x 是一个对象或一个函数:</a></li></ul></li></ul></li></ul></nav></div></div><div class=post-outdated><div class=warn><p>【注意】最后更新于 <span class=timeago datetime=2016-01-26T01:12:36 title=2016-01-26>2016-01-26, </span>，文中内容可能已过时，请谨慎使用。</p></div></div><div class=post-content><p>接上篇，下面的序号是为了与<a href=https://promisesaplus.com/>规范</a>中一致。</p><h1 id=23-promise-解析流程>2.3. Promise 解析流程</h1><p>这里主要是根据规范来看，要注意哈，搬运工又来了。</p><p>Promise 解析过程 是以一个 promise 和一个值 x 做为参数的抽象过程，可表示为 <code>[[Resolve]](promise, x)</code>, 过程如下：</p><h2 id=231-如果-promise-和-x-指向相同的值-使用-typeerror-做为原因将-promise-拒绝如下>2.3.1 如果 promise 和 x 指向相同的值, 使用 TypeError 做为原因将 promise 拒绝，如下：</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=kd>var</span> <span class=nx>promise</span> <span class=o>=</span> <span class=nb>Promise</span><span class=p>.</span><span class=nx>resolve</span><span class=p>(</span><span class=s1>&#39;done&#39;</span><span class=p>).</span><span class=nx>then</span><span class=p>(</span><span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>promise</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>promise</span><span class=p>.</span><span class=nx>then</span><span class=p>(</span><span class=kc>null</span><span class=p>,</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>reason</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;error&#39;</span><span class=p>,</span> <span class=nx>reason</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=c1>// error TypeError: Chaining cycle detected for promise #&lt;Promise&gt;
+</span></span></span></code></pre></td></tr></table></div></div><h2 id=232-如果-x-是一个-promise--采用其状态>2.3.2 如果 x 是一个 promise , 采用其状态:</h2><ul><li>2.3.2.1 如果 x 是 pending 状态，promise 必须保持 pending 走到 x fulfilled 或 rejected。</li><li>2.3.2.2 如果 x 是 fulfilled 状态，将 x 的值用于 fulfill promise。</li><li>2.3.2.3 如果 x 是 rejected 状态, 将 x 的原因用于 reject promise。</li></ul><p>如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=kd>var</span> <span class=nx>dummy</span> <span class=o>=</span> <span class=p>{</span> <span class=nx>dummy</span><span class=o>:</span> <span class=s2>&#34;dummy&#34;</span> <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 2.3.2.1，x 是 pending 状态
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>function</span> <span class=nx>xFactory</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=k>new</span> <span class=nb>Promise</span><span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>resolve</span><span class=p>,</span> <span class=nx>reject</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>setTimeout</span><span class=p>(</span><span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>resolve</span><span class=p>(</span><span class=mi>1000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=p>},</span> <span class=mi>1000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>promise</span> <span class=o>=</span> <span class=nb>Promise</span><span class=p>.</span><span class=nx>resolve</span><span class=p>(</span><span class=nx>dummy</span><span class=p>).</span><span class=nx>then</span><span class=p>(</span><span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>xFactory</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>promise</span><span class=p>.</span><span class=nx>then</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=p>(</span><span class=nx>val</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;resolve&#39;</span><span class=p>,</span> <span class=nx>val</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;reject&#39;</span><span class=p>,</span> <span class=nx>e</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=c1>// resolve 1000
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=c1>// 2.3.2.2，x 是 fulfilled 状态
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>var</span> <span class=nx>promise</span> <span class=o>=</span> <span class=nb>Promise</span><span class=p>.</span><span class=nx>resolve</span><span class=p>(</span><span class=nx>dummy</span><span class=p>).</span><span class=nx>then</span><span class=p>(</span><span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>Promise</span><span class=p>.</span><span class=nx>resolve</span><span class=p>(</span><span class=s1>&#39;done&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>promise</span><span class=p>.</span><span class=nx>then</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=p>(</span><span class=nx>val</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;resolve&#39;</span><span class=p>,</span> <span class=nx>val</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;reject&#39;</span><span class=p>,</span> <span class=nx>e</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=c1>// resolve done
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=c1>// 2.3.2.3，x 是 rejected 状态
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>var</span> <span class=nx>promise</span> <span class=o>=</span> <span class=nb>Promise</span><span class=p>.</span><span class=nx>resolve</span><span class=p>(</span><span class=nx>dummy</span><span class=p>).</span><span class=nx>then</span><span class=p>(</span><span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>Promise</span><span class=p>.</span><span class=nx>reject</span><span class=p>(</span><span class=s1>&#39;error&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>promise</span><span class=p>.</span><span class=nx>then</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=p>(</span><span class=nx>val</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;resolve&#39;</span><span class=p>,</span> <span class=nx>val</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;reject&#39;</span><span class=p>,</span> <span class=nx>e</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=c1>// reject error
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=233-如果-x-是一个对象或一个函数>2.3.3 如果 x 是一个对象或一个函数:</h3><p>2.3.3.1 将 then 赋为 x.then</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// 1. 当 x 为没有原型的对象时
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>var</span> <span class=nx>numberOfTimesThenWasRetrieved</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>function</span> <span class=nx>xFactory</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>Object</span><span class=p>.</span><span class=nx>create</span><span class=p>(</span><span class=kc>null</span><span class=p>,</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>then</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>get</span><span class=o>:</span> <span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=o>++</span><span class=nx>numberOfTimesThenWasRetrieved</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=kd>function</span> <span class=nx>thenMethodForX</span><span class=p>(</span><span class=nx>onFulfilled</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=nx>onFulfilled</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                <span class=p>};</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>promise</span> <span class=o>=</span> <span class=nb>Promise</span><span class=p>.</span><span class=nx>resolve</span><span class=p>(</span><span class=nx>dummy</span><span class=p>).</span><span class=nx>then</span><span class=p>(</span><span class=kd>function</span> <span class=nx>onBasePromiseFulfilled</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>xFactory</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=nx>promise</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=c1>// Promise {[[PromiseStatus]]: &#34;pending&#34;, [[PromiseValue]]: undefined}
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=nx>promise</span><span class=p>.</span><span class=nx>then</span><span class=p>(</span><span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=nx>numberOfTimesThenWasRetrieved</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=c1>// 1
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=c1>// 2. 当 x 为有基本原型的对象，修改如下
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>function</span> <span class=nx>xFactory</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>Object</span><span class=p>.</span><span class=nx>create</span><span class=p>(</span><span class=nb>Object</span><span class=p>.</span><span class=nx>prototype</span><span class=p>,</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>then</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>get</span><span class=o>:</span> <span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=o>++</span><span class=nx>numberOfTimesThenWasRetrieved</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=kd>function</span> <span class=nx>thenMethodForX</span><span class=p>(</span><span class=nx>onFulfilled</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=nx>onFulfilled</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                <span class=p>};</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=c1>// 1
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=c1>// 3. 当 x 为函数时
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>function</span> <span class=nx>xFactory</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nx>x</span><span class=p>()</span> <span class=p>{</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>Object</span><span class=p>.</span><span class=nx>defineProperty</span><span class=p>(</span><span class=nx>x</span><span class=p>,</span> <span class=s2>&#34;then&#34;</span><span class=p>,</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>get</span><span class=o>:</span> <span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=o>++</span><span class=nx>numberOfTimesThenWasRetrieved</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kd>function</span> <span class=nx>thenMethodForX</span><span class=p>(</span><span class=nx>onFulfilled</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=nx>onFulfilled</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>            <span class=p>};</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>x</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=c1>// 1
+</span></span></span></code></pre></td></tr></table></div></div><p>2.3.3.2 如果在取 x.then 值时抛出了异常，则以这个异常做为原因将 promise 拒绝</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// 取 x.then 的时候，出现错误
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>function</span> <span class=nx>xFactory</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>Object</span><span class=p>.</span><span class=nx>create</span><span class=p>(</span><span class=nb>Object</span><span class=p>.</span><span class=nx>prototype</span><span class=p>,</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>then</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>get</span><span class=o>:</span> <span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=k>throw</span> <span class=nb>Error</span><span class=p>(</span><span class=s1>&#39;error&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=/post/2016/images/20160122promise/promise_catch_1.png alt=promise_catch_1></p><p>2.3.3.3 如果 then 是一个函数， 以 x 为 this 调用 then 函数，且第一个参数是 resolvePromise，第二个参数是 rejectPromise，且：</p><ul><li>2.3.3.3.1 当 resolvePromise 被以 y 为参数调用, 执行 <code>[[Resolve]](promise, y)</code>。</li><li>2.3.3.3.2 当 rejectPromise 被以 r 为参数调用, 则以 r 为原因将 promise 拒绝。</li><li>2.3.3.3.3 如果 resolvePromise 和 rejectPromise 都被调用了，或者被调用了多次，则只第一次有效，后面的忽略。</li><li>2.3.3.3.4 如果在调用 then 时抛出了异常，则。<ul><li>2.3.3.3.4.1 如果 resolvePromise 或 rejectPromise 已经被调用了，则忽略它。</li><li>2.3.3.3.4.2 否则, 以 e 为 reason 将 promise 拒绝。</li></ul></li></ul><p>这个有点绕，看测试代码也挺复杂。这里就不贴代码了（测试代码900多行），有兴趣直接看 <a href=https://github.com/promises-aplus/promises-tests/blob/master/lib/tests/2.3.3.js>这里</a>。</p><p>所以，回到之前的问题：</p><p><img src=/post/2016/images/20160122promise/promise_resolve_4.png alt=resolve_4></p><p>这个看 2.3.3.4，因为请求错误的接口，在调用 then 时抛出了异常，所以会进入到 Rejected 状态。</p><p>哎，感觉这个流程还是有点问题，再琢磨琢磨。</p></div><footer class=post-footer><div class=post-tags><a href=/tags/js/>js</a>
+<a href=/tags/promise/>promise</a></div><nav class=post-nav><a class=prev href=/post/2017/03-13-wx-platform-conect/><i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">使用koa2对接微信公众平台</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/2016/01-25-promise-study-2/><span class="next-text nav-default">Promise初级教程2：详细介绍</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=cirplan/cirplan.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
+2015 -
+2022<span class=heart>🥕</span><span>胖乎乎的萝卜</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>

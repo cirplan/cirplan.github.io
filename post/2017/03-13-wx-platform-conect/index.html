@@ -1,0 +1,271 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>使用koa2对接微信公众平台 - 胖萝卜的菜园</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="胖乎乎的萝卜"><meta name=description content="使用koa2对接微信公众平台"><meta name=keywords content="js,koa2,wechat"><link rel=canonical href=https://cirplan.github.io/post/2017/03-13-wx-platform-conect/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link href=/sass/main.min.13b755479625487471ed020b20c7d7f5fa3af757dd4c943c3aedb3ae08d2fe9f.css rel=stylesheet><meta property="og:title" content="使用koa2对接微信公众平台"><meta property="og:description" content="使用koa2对接微信公众平台"><meta property="og:type" content="article"><meta property="og:url" content="https://cirplan.github.io/post/2017/03-13-wx-platform-conect/"><meta property="article:section" content="post"><meta property="article:published_time" content="2017-03-13T01:37:39+08:00"><meta property="article:modified_time" content="2017-03-13T01:37:39+08:00"><meta itemprop=name content="使用koa2对接微信公众平台"><meta itemprop=description content="使用koa2对接微信公众平台"><meta itemprop=datePublished content="2017-03-13T01:37:39+08:00"><meta itemprop=dateModified content="2017-03-13T01:37:39+08:00"><meta itemprop=wordCount content="1116"><meta itemprop=keywords content="js,koa2,node,"><meta name=twitter:card content="summary"><meta name=twitter:title content="使用koa2对接微信公众平台"><meta name=twitter:description content="使用koa2对接微信公众平台"></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>萝卜菜园</a></div><div class=mobile-navbar-icon id=mobile-navbar-icon><span></span>
+<span></span>
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=https://github.com/cirplan><li class=mobile-menu-item>Github</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>萝卜菜园</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/cirplan>Github</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>使用koa2对接微信公众平台</h1><div class=post-meta><span class=post-time>2017-03-13</span><div class=post-category><a href=/categories/node/>node</a></div><span class=more-meta>约 1116 字</span>
+<span class=more-meta>预计阅读 3 分钟</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#流程>流程</a></li><li><a href=#验证服务器>验证服务器</a></li><li><a href=#处理-post-请求>处理 POST 请求</a></li><li><a href=#接收-xml-数据>接收 XML 数据</a></li><li><a href=#发送消息>发送消息</a></li></ul></nav></div></div><div class=post-outdated><div class=warn><p>【注意】最后更新于 <span class=timeago datetime=2017-03-13T01:37:39 title=2017-03-13>2017-03-13, </span>，文中内容可能已过时，请谨慎使用。</p></div></div><div class=post-content><p>这几天心血来潮，想玩下微信公众平台，看看它是如何对接到个人服务器的。这里简单记录下。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>环境：
+</span></span><span class=line><span class=cl>  node v7.7.1
+</span></span><span class=line><span class=cl>  koa  v2.0.1
+</span></span></code></pre></td></tr></table></div></div><h1 id=流程>流程</h1><ol><li><p>在微信公众平台的 开发 -> 基本配置 那填写服务器信息；</p></li><li><p>点击启用后，微信会发 Get 请求到填写的服务器，检查服务器是否有效；</p></li><li><p>服务器验证通过后，公众号每次接收到新消息，都会发 POST 请求到服务器，然后我们就可以在服务器里进行各种处理。</p></li></ol><h1 id=验证服务器>验证服务器</h1><p><a href=https://mp.weixin.qq.com/wiki>微信开发文档</a>里有写验证的规则（这不是废话么）：</p><p><img src=/post/2017/images/0313-wx-platform/verify.png alt=验证规则></p><p>上面的文字已经写的很直白了，不多说，代码实现如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// 验证消息来自微信服务器
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>crypto</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;crypto&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nx>module</span><span class=p>.</span><span class=nx>exports</span> <span class=o>=</span> <span class=p>(</span><span class=nx>ctx</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>token</span> <span class=o>=</span> <span class=s1>&#39;xxxx&#39;</span><span class=p>,</span> <span class=c1>// 自定义，与公众号设置的一致
+</span></span></span><span class=line><span class=cl><span class=c1></span>          <span class=nx>signature</span> <span class=o>=</span> <span class=nx>ctx</span><span class=p>.</span><span class=nx>query</span><span class=p>.</span><span class=nx>signature</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>          <span class=nx>timestamp</span> <span class=o>=</span> <span class=nx>ctx</span><span class=p>.</span><span class=nx>query</span><span class=p>.</span><span class=nx>timestamp</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>          <span class=nx>nonce</span> <span class=o>=</span> <span class=nx>ctx</span><span class=p>.</span><span class=nx>query</span><span class=p>.</span><span class=nx>nonce</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>    <span class=c1>// 字典排序
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kr>const</span> <span class=nx>arr</span> <span class=o>=</span> <span class=p>[</span><span class=nx>token</span><span class=p>,</span> <span class=nx>timestamp</span><span class=p>,</span> <span class=nx>nonce</span><span class=p>].</span><span class=nx>sort</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>sha1</span> <span class=o>=</span> <span class=nx>crypto</span><span class=p>.</span><span class=nx>createHash</span><span class=p>(</span><span class=s1>&#39;sha1&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>sha1</span><span class=p>.</span><span class=nx>update</span><span class=p>(</span><span class=nx>arr</span><span class=p>.</span><span class=nx>join</span><span class=p>(</span><span class=s1>&#39;&#39;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>result</span> <span class=o>=</span> <span class=nx>sha1</span><span class=p>.</span><span class=nx>digest</span><span class=p>(</span><span class=s1>&#39;hex&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=nx>result</span> <span class=o>===</span> <span class=nx>signature</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>ctx</span><span class=p>.</span><span class=nx>body</span> <span class=o>=</span> <span class=nx>ctx</span><span class=p>.</span><span class=nx>query</span><span class=p>.</span><span class=nx>echostr</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>ctx</span><span class=p>.</span><span class=nx>body</span> <span class=o>=</span> <span class=p>{</span> <span class=nx>code</span><span class=o>:</span> <span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=nx>msg</span><span class=o>:</span> <span class=s2>&#34;fail&#34;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h1 id=处理-post-请求>处理 POST 请求</h1><p>下面要处理接收消息的 POST 请求。因为消息的格式都是 XML ，所以这里需要引入 xml2js 。</p><h1 id=接收-xml-数据>接收 XML 数据</h1><p>koa2 没有对 XML 格式的参数进行处理，这里需要我们自己来处理下，写的中间件如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// xmlTool.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>xml2js</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;xml2js&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>exports</span><span class=p>.</span><span class=nx>xmlToJson</span> <span class=o>=</span> <span class=p>(</span><span class=nx>str</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>     <span class=k>return</span> <span class=k>new</span> <span class=nb>Promise</span><span class=p>((</span><span class=nx>resolve</span><span class=p>,</span> <span class=nx>reject</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>const</span> <span class=nx>parseString</span> <span class=o>=</span> <span class=nx>xml2js</span><span class=p>.</span><span class=nx>parseString</span>
+</span></span><span class=line><span class=cl>        <span class=nx>parseString</span><span class=p>(</span><span class=nx>str</span><span class=p>,</span> <span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=nx>result</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=p>(</span><span class=nx>err</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=nx>reject</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=nx>resolve</span><span class=p>(</span><span class=nx>result</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>})</span>
+</span></span><span class=line><span class=cl>     <span class=p>})</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>exports</span><span class=p>.</span><span class=nx>jsonToXml</span> <span class=o>=</span> <span class=p>(</span><span class=nx>obj</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>builder</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>xml2js</span><span class=p>.</span><span class=nx>Builder</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>builder</span><span class=p>.</span><span class=nx>buildObject</span><span class=p>(</span><span class=nx>obj</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// xmlParse.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>xml</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;./xmlTool&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>module</span><span class=p>.</span><span class=nx>exports</span> <span class=o>=</span> <span class=p>()</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kr>async</span> <span class=p>(</span><span class=nx>ctx</span><span class=p>,</span> <span class=nx>next</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=nx>ctx</span><span class=p>.</span><span class=nx>method</span> <span class=o>==</span> <span class=s1>&#39;POST&#39;</span> <span class=o>&amp;&amp;</span> <span class=nx>ctx</span><span class=p>.</span><span class=nx>is</span><span class=p>(</span><span class=s1>&#39;text/xml&#39;</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=kd>let</span> <span class=nx>promise</span> <span class=o>=</span> <span class=k>new</span> <span class=nb>Promise</span><span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>resolve</span><span class=p>,</span> <span class=nx>reject</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=kd>let</span> <span class=nx>buf</span> <span class=o>=</span> <span class=s1>&#39;&#39;</span>
+</span></span><span class=line><span class=cl>                <span class=nx>ctx</span><span class=p>.</span><span class=nx>req</span><span class=p>.</span><span class=nx>setEncoding</span><span class=p>(</span><span class=s1>&#39;utf8&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=nx>ctx</span><span class=p>.</span><span class=nx>req</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;data&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>chunk</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=nx>buf</span> <span class=o>+=</span> <span class=nx>chunk</span>
+</span></span><span class=line><span class=cl>                <span class=p>})</span>
+</span></span><span class=line><span class=cl>                <span class=nx>ctx</span><span class=p>.</span><span class=nx>req</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;end&#39;</span><span class=p>,</span> <span class=p>()</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=nx>xml</span><span class=p>.</span><span class=nx>xmlToJson</span><span class=p>(</span><span class=nx>buf</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=p>.</span><span class=nx>then</span><span class=p>(</span><span class=nx>resolve</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=p>.</span><span class=k>catch</span><span class=p>(</span><span class=nx>reject</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=p>})</span>
+</span></span><span class=line><span class=cl>            <span class=p>})</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>            <span class=kr>await</span> <span class=nx>promise</span><span class=p>.</span><span class=nx>then</span><span class=p>((</span><span class=nx>result</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=nx>ctx</span><span class=p>.</span><span class=nx>req</span><span class=p>.</span><span class=nx>body</span> <span class=o>=</span> <span class=nx>result</span>
+</span></span><span class=line><span class=cl>                <span class=p>})</span>
+</span></span><span class=line><span class=cl>                <span class=p>.</span><span class=k>catch</span><span class=p>((</span><span class=nx>e</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=nx>e</span><span class=p>.</span><span class=nx>status</span> <span class=o>=</span> <span class=mi>400</span>
+</span></span><span class=line><span class=cl>                <span class=p>})</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>            <span class=nx>next</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=kr>await</span> <span class=nx>next</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>加上了这个中间件，我们就可以正确接收到 XML 格式的参数了。接收到的参数如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// console.log(buf) 
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=o>&lt;</span><span class=nx>xml</span><span class=o>&gt;</span><span class=err>\</span><span class=nx>n</span><span class=o>&lt;</span><span class=nx>ToUserName</span><span class=o>&gt;&lt;!</span><span class=p>[</span><span class=nx>CDATA</span><span class=p>[</span><span class=nx>toUser</span><span class=p>]]</span><span class=o>&gt;&lt;</span><span class=err>/ToUserName&gt;\n&lt;FromUserName&gt;&lt;![CDATA[fromUser]]&gt;&lt;/FromUserName&gt;\n&lt;C</span>
+</span></span><span class=line><span class=cl><span class=nx>reateTime</span><span class=o>&gt;</span><span class=mi>12345678</span><span class=o>&lt;</span><span class=err>/CreateTime&gt;\n&lt;MsgType&gt;&lt;![CDATA[text]]&gt;&lt;/MsgType&gt;\n&lt;Content&gt;&lt;![CDATA[你好]]&gt;&lt;/Content&gt;\n&lt;/x</span>
+</span></span><span class=line><span class=cl><span class=nx>ml</span><span class=o>&gt;</span><span class=err>\</span><span class=nx>n</span><span class=err>\</span><span class=nx>n</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 转为JSON后
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span> <span class=nx>ToUserName</span><span class=o>:</span> <span class=p>[</span> <span class=s1>&#39;toUser&#39;</span> <span class=p>],</span>
+</span></span><span class=line><span class=cl>  <span class=nx>FromUserName</span><span class=o>:</span> <span class=p>[</span> <span class=s1>&#39;fromUser&#39;</span> <span class=p>],</span>
+</span></span><span class=line><span class=cl>  <span class=nx>CreateTime</span><span class=o>:</span> <span class=p>[</span> <span class=s1>&#39;12345678&#39;</span> <span class=p>],</span>
+</span></span><span class=line><span class=cl>  <span class=nx>MsgType</span><span class=o>:</span> <span class=p>[</span> <span class=s1>&#39;text&#39;</span> <span class=p>],</span>
+</span></span><span class=line><span class=cl>  <span class=nx>Content</span><span class=o>:</span> <span class=p>[</span> <span class=s1>&#39;你好&#39;</span> <span class=p>]</span> <span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h1 id=发送消息>发送消息</h1><p>接收到消息后，服务器需要在5s内返回消息，如果没内容返回，可以返回 success 或空字符串。下面是返回文本信息的例子：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// wx.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>exports</span><span class=p>.</span><span class=nx>message</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>text</span> <span class=p>(</span><span class=nx>msg</span><span class=p>,</span> <span class=nx>content</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>xml</span><span class=p>.</span><span class=nx>jsonToXml</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>            <span class=nx>xml</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=nx>ToUserName</span><span class=o>:</span> <span class=nx>msg</span><span class=p>.</span><span class=nx>FromUserName</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                <span class=nx>FromUserName</span><span class=o>:</span> <span class=nx>msg</span><span class=p>.</span><span class=nx>ToUserName</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                <span class=nx>CreateTime</span><span class=o>:</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>                <span class=nx>MsgType</span><span class=o>:</span> <span class=nx>msg</span><span class=p>.</span><span class=nx>MsgType</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                <span class=nx>Content</span><span class=o>:</span> <span class=nx>content</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// index.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>wx</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;./wx&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nx>exports</span><span class=p>.</span><span class=nx>postHandle</span> <span class=o>=</span> <span class=p>(</span><span class=nx>ctx</span><span class=p>,</span> <span class=nx>next</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kd>let</span> <span class=nx>msg</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>MsgType</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>result</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>msg</span> <span class=o>=</span> <span class=nx>ctx</span><span class=p>.</span><span class=nx>req</span><span class=p>.</span><span class=nx>body</span> <span class=o>?</span> <span class=nx>ctx</span><span class=p>.</span><span class=nx>req</span><span class=p>.</span><span class=nx>body</span><span class=p>.</span><span class=nx>xml</span> <span class=o>:</span> <span class=s1>&#39;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=nx>msg</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>ctx</span><span class=p>.</span><span class=nx>body</span> <span class=o>=</span> <span class=s1>&#39;error request.&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nx>MsgType</span> <span class=o>=</span> <span class=nx>msg</span><span class=p>.</span><span class=nx>MsgType</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>switch</span> <span class=p>(</span><span class=nx>MsgType</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>case</span> <span class=s1>&#39;text&#39;</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>            <span class=nx>result</span> <span class=o>=</span> <span class=nx>wx</span><span class=p>.</span><span class=nx>message</span><span class=p>.</span><span class=nx>text</span><span class=p>(</span><span class=nx>msg</span><span class=p>,</span> <span class=nx>msg</span><span class=p>.</span><span class=nx>Content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>break</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>default</span><span class=o>:</span> 
+</span></span><span class=line><span class=cl>            <span class=nx>result</span> <span class=o>=</span> <span class=s1>&#39;success&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nx>ctx</span><span class=p>.</span><span class=nx>res</span><span class=p>.</span><span class=nx>setHeader</span><span class=p>(</span><span class=s1>&#39;Content-Type&#39;</span><span class=p>,</span> <span class=s1>&#39;application/xml&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>ctx</span><span class=p>.</span><span class=nx>res</span><span class=p>.</span><span class=nx>end</span><span class=p>(</span><span class=nx>result</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>这样子就可以返回文本信息啦～到这里已经把基本的流程走完。其他更多的操作可以看官方文档，加以修改就好。</p><p>上面的代码已开源到<a href=https://github.com/cirplan/koa2-wechat>https://github.com/cirplan/koa2-wechat</a> 上，欢迎围观。</p></div><footer class=post-footer><div class=post-tags><a href=/tags/js/>js</a>
+<a href=/tags/koa2/>koa2</a>
+<a href=/tags/node/>node</a></div><nav class=post-nav><a class=prev href=/post/2022/08-22-talk-about-maverick/><i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">浅聊壮志凌云2</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/2016/01-26-promise-study-3/><span class="next-text nav-default">Promise初级教程3：解析流程</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=cirplan/cirplan.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
+2015 -
+2022<span class=heart>🥕</span><span>胖乎乎的萝卜</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>

@@ -1,0 +1,337 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>JS模块化开发2：AMD与CMD规范 - 胖萝卜的菜园</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="胖乎乎的萝卜"><meta name=description content="JS模块化开发之AMD与CMD规范"><meta name=keywords content="js,module,amd,cmd"><link rel=canonical href=https://cirplan.github.io/post/2015/10-18-js-amd-cmd/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link href=/sass/main.min.13b755479625487471ed020b20c7d7f5fa3af757dd4c943c3aedb3ae08d2fe9f.css rel=stylesheet><meta property="og:title" content="JS模块化开发2：AMD与CMD规范"><meta property="og:description" content="JS模块化开发之AMD与CMD规范"><meta property="og:type" content="article"><meta property="og:url" content="https://cirplan.github.io/post/2015/10-18-js-amd-cmd/"><meta property="article:section" content="post"><meta property="article:published_time" content="2015-10-08T00:36:33+08:00"><meta property="article:modified_time" content="2015-10-08T00:36:33+08:00"><meta itemprop=name content="JS模块化开发2：AMD与CMD规范"><meta itemprop=description content="JS模块化开发之AMD与CMD规范"><meta itemprop=datePublished content="2015-10-08T00:36:33+08:00"><meta itemprop=dateModified content="2015-10-08T00:36:33+08:00"><meta itemprop=wordCount content="2414"><meta itemprop=keywords content="js,module,amd,cmd,"><meta name=twitter:card content="summary"><meta name=twitter:title content="JS模块化开发2：AMD与CMD规范"><meta name=twitter:description content="JS模块化开发之AMD与CMD规范"></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>萝卜菜园</a></div><div class=mobile-navbar-icon id=mobile-navbar-icon><span></span>
+<span></span>
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=https://github.com/cirplan><li class=mobile-menu-item>Github</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>萝卜菜园</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/cirplan>Github</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>JS模块化开发2：AMD与CMD规范</h1><div class=post-meta><span class=post-time>2015-10-08</span><div class=post-category><a href=/categories/js/>JS</a></div><span class=more-meta>约 2414 字</span>
+<span class=more-meta>预计阅读 5 分钟</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#本文内容>本文内容：</a></li><li><a href=#1-amd规范代表requirejs>1. AMD规范（代表require.js）</a><ul><li><a href=#id-名字>id 名字</a></li><li><a href=#dependencies-依赖>dependencies 依赖</a></li><li><a href=#factory-工厂方法>factory 工厂方法</a></li><li><a href=#简单的-commonjs-转换>简单的 CommonJS 转换</a></li></ul></li><li><a href=#2cmd规范代表seajs>2.CMD规范（代表sea.js）</a><ul><li><a href=#require>require</a></li><li><a href=#exports>exports</a></li><li><a href=#module>module</a></li></ul></li><li><a href=#3amd规范cmd规范的异同点>3.AMD规范CMD规范的异同点</a><ul><li><a href=#相同点>相同点</a></li><li><a href=#不同点>不同点</a><ul><li><a href=#1执行时机>1.执行时机</a></li><li><a href=#2书写风格>2.书写风格</a></li></ul></li></ul></li><li><a href=#end>End</a></li></ul></nav></div></div><div class=post-outdated><div class=warn><p>【注意】最后更新于 <span class=timeago datetime=2015-10-08T00:36:33 title=2015-10-08>2015-10-08, </span>，文中内容可能已过时，请谨慎使用。</p></div></div><div class=post-content><p>接着<a href=/post/2015/10-17-js-module/>上一篇</a>，这里说下AMD与CMD规范。</p><h1 id=本文内容>本文内容：</h1><p>1.AMD规范</p><p>2.CMD规范</p><p>3.AMD规范CMD规范的异同点</p><h1 id=1-amd规范代表requirejs>1. AMD规范（代表require.js）</h1><p>AMD规范的英文文档看<a href=https://github.com/amdjs/amdjs-api/wiki/AMD>这里</a>，中文版看<a href=https://github.com/amdjs/amdjs-api/wiki/AMD-(%E4%B8%AD%E6%96%87%E7%89%88)>这里</a>（选择细看文档的话，下面不用看了）。AMD全称是Asynchronous Module Definition（异步模块定义规范），规定了模块与模块之间是异步加载的，
+这和浏览器的异步加载模块的环境刚好适应（浏览器同步加载模块会导致性能、可用性、调试和跨域访问等问题）。</p><p>该规范只定义了一个全局函数：</p><pre><code>define(id?, dependencies?, factory);
+</code></pre><h2 id=id-名字>id 名字</h2><ul><li>类型：字符串；</li><li>特点：唯一，可选，默认为脚本名字。</li></ul><h2 id=dependencies-依赖>dependencies 依赖</h2><ul><li>类型：数组；</li><li>执行顺序：依赖模块必须根据模块的工厂方法优先级执行（依赖少的先执行），并且执行的结果应该按照依赖数组中的位置顺序以参数的形式传入（定义中模块的）工厂方法中；</li><li>模块命名：如果是相对的，应该解析为相对定义中的模块。</li><li>关键字： 三种特殊的依赖关键字<code>require</code>,<code>exports</code>, <code>module</code>，是可选的，如果忽略此参数，它应该默认为[&ldquo;require&rdquo;, &ldquo;exports&rdquo;, &ldquo;module&rdquo;]。
+然而，如果工厂方法的形参个数小于3，加载器会选择以函数指定的参数个数调用工厂方法。</li></ul><p>创建一个名为"alpha"的模块，使用了require，exports，和名为"beta"的模块:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=s2>&#34;alpha&#34;</span><span class=p>,</span> <span class=p>[</span><span class=s2>&#34;require&#34;</span><span class=p>,</span> <span class=s2>&#34;exports&#34;</span><span class=p>,</span> <span class=s2>&#34;beta&#34;</span><span class=p>],</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=nx>exports</span><span class=p>,</span> <span class=nx>beta</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>exports</span><span class=p>.</span><span class=nx>verb</span> <span class=o>=</span> <span class=kd>function</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>beta</span><span class=p>.</span><span class=nx>verb</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=c1>//Or:
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>return</span> <span class=nx>require</span><span class=p>(</span><span class=s2>&#34;beta&#34;</span><span class=p>).</span><span class=nx>verb</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=factory-工厂方法>factory 工厂方法</h2><ul><li>类型：函数或对象；</li><li>特点：函数只执行一次</li></ul><p>一个没有依赖性的模块可以直接定义对象：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>  <span class=nx>add</span><span class=o>:</span> <span class=kd>function</span><span class=p>(</span><span class=nx>x</span><span class=p>,</span> <span class=nx>y</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>x</span> <span class=o>+</span> <span class=nx>y</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=简单的-commonjs-转换>简单的 CommonJS 转换</h2><p>为了向CommonJS靠拢而加的方法。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=nx>exports</span><span class=p>,</span> <span class=nx>module</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kd>var</span> <span class=nx>a</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;a&#39;</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>      <span class=nx>b</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;b&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=nx>exports</span><span class=p>.</span><span class=nx>action</span> <span class=o>=</span> <span class=kd>function</span> <span class=p>()</span> <span class=p>{};</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>但这会被转换成规范模式再执行：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>([</span><span class=s2>&#34;a&#34;</span><span class=p>,</span> <span class=s2>&#34;b&#34;</span><span class=p>],</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>a</span><span class=p>,</span> <span class=nx>b</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=p>...</span>
+</span></span><span class=line><span class=cl>    <span class=nx>exports</span><span class=p>.</span><span class=nx>action</span> <span class=o>=</span> <span class=kd>function</span> <span class=p>()</span> <span class=p>{};</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>在require.js（v2.1.20 line2052）中的实现如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>//If no name, and callback is a function, then figure out if it a
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=c1>//CommonJS thing with dependencies.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=nx>deps</span> <span class=o>&amp;&amp;</span> <span class=nx>isFunction</span><span class=p>(</span><span class=nx>callback</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>deps</span> <span class=o>=</span> <span class=p>[];</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//Remove comments from the callback string,
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//look for require calls, and pull them into the dependencies,
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//but only if there are function args.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=nx>callback</span><span class=p>.</span><span class=nx>length</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>callback</span>
+</span></span><span class=line><span class=cl>            <span class=p>.</span><span class=nx>toString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>            <span class=p>.</span><span class=nx>replace</span><span class=p>(</span><span class=nx>commentRegExp</span><span class=p>,</span> <span class=s1>&#39;&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=p>.</span><span class=nx>replace</span><span class=p>(</span><span class=nx>cjsRequireRegExp</span><span class=p>,</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>match</span><span class=p>,</span> <span class=nx>dep</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=nx>deps</span><span class=p>.</span><span class=nx>push</span><span class=p>(</span><span class=nx>dep</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1>//May be a CommonJS thing even without require calls, but still
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=c1>//could use exports, and module. Avoid doing exports and module
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=c1>//work though if it just needs require.
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=c1>//REQUIRES the function to expect the CommonJS variables in the
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=c1>//order listed below.
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nx>deps</span> <span class=o>=</span> <span class=p>(</span><span class=nx>callback</span><span class=p>.</span><span class=nx>length</span> <span class=o>===</span> <span class=mi>1</span> <span class=o>?</span> <span class=p>[</span><span class=s1>&#39;require&#39;</span><span class=p>]</span> <span class=o>:</span> <span class=p>[</span><span class=s1>&#39;require&#39;</span><span class=p>,</span> <span class=s1>&#39;exports&#39;</span><span class=p>,</span> <span class=s1>&#39;module&#39;</span><span class=p>]).</span><span class=nx>concat</span><span class=p>(</span><span class=nx>deps</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>但在某些情况下，因为脚本大小的限制或函数不支持toString方法（Opera Mobile是已知的不支持函数的toString方法），模块加载器可以选择扫描不扫描依赖性。
+如果有依赖参数，模块加载器不应该在工厂方法中扫描依赖性。</p><h1 id=2cmd规范代表seajs>2.CMD规范（代表sea.js）</h1><p>CMD(Common Module Definition)规范戳<a href=https://github.com/seajs/seajs/issues/242>这里</a>。该规范规定一个模块就是一个文件，定义的函数如下：</p><pre><code>define(factory);
+</code></pre><ul><li>define是全局函数；</li><li>factory可以是一个函数，也可以是一个对象或字符串；</li><li>factory为函数时，默认传入三个参数：<code>require</code>、<code>exports</code> 和 <code>module</code>;</li></ul><p>ex:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=kd>function</span><span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=nx>exports</span><span class=p>,</span> <span class=nx>module</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 模块代码
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>CMD也支持如下写法：</p><pre><code>define(id?, deps?, factory)
+</code></pre><p>字符串 id 表示模块标识，数组 deps 是模块依赖。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=s1>&#39;hello&#39;</span><span class=p>,</span> <span class=p>[</span><span class=s1>&#39;jquery&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=nx>exports</span><span class=p>,</span> <span class=nx>module</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 模块代码
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>但是，带 id 和 deps 参数的 define 用法不属于 CMD 规范，而属于 <a href=https://github.com/cmdjs/specification/blob/master/draft/transport.md>Modules/Transport</a> 规范。</p><p>下面分别说说<code>require</code>，<code>exports</code>，<code>module</code>。</p><h2 id=require>require</h2><p><code>require</code>是 factory 函数的第一个参数，接受 模块标识 作为唯一参数，用来获取其他模块提供的接口。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=kd>function</span><span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=nx>exports</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 获取模块 a 的接口
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kd>var</span> <span class=nx>a</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;./a&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 调用模块 a 的方法
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>a</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p><code>require.async</code> require.async(id, callback?) 方法用来在模块内部异步加载模块，并在加载完成后执行指定回调。callback 参数可选。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=kd>function</span><span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=nx>exports</span><span class=p>,</span> <span class=nx>module</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 异步加载一个模块，在加载完成时，执行回调
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>require</span><span class=p>.</span><span class=kr>async</span><span class=p>(</span><span class=s1>&#39;./b&#39;</span><span class=p>,</span> <span class=kd>function</span><span class=p>(</span><span class=nx>b</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>b</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 异步加载多个模块，在加载完成时，执行回调
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>require</span><span class=p>.</span><span class=kr>async</span><span class=p>([</span><span class=s1>&#39;./c&#39;</span><span class=p>,</span> <span class=s1>&#39;./d&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>c</span><span class=p>,</span> <span class=nx>d</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>c</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=nx>d</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=exports>exports</h2><p><code>exports</code>是一个对象，用来向外提供模块接口。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=kd>function</span><span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=nx>exports</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 对外提供 foo 属性
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>exports</span><span class=p>.</span><span class=nx>foo</span> <span class=o>=</span> <span class=s1>&#39;bar&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 对外提供 doSomething 方法
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>exports</span><span class=p>.</span><span class=nx>doSomething</span> <span class=o>=</span> <span class=kd>function</span><span class=p>()</span> <span class=p>{};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>除了给 exports 对象增加成员，还可以使用 return 直接向外提供接口。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=kd>function</span><span class=p>(</span><span class=nx>require</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 通过 return 直接提供接口
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>foo</span><span class=o>:</span> <span class=s1>&#39;bar&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>doSomething</span><span class=o>:</span> <span class=kd>function</span><span class=p>()</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>  <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>提示：exports 仅仅是 module.exports 的一个引用。在 factory 内部给 exports 重新赋值时，并不会改变 module.exports 的值。因此给 exports 赋值是无效的，不能用来更改模块接口。</p><h2 id=module>module</h2><p><code>module</code> 是一个对象，上面存储了与当前模块相关联的一些属性和方法。</p><p><code>module.exports</code> 当前模块对外提供的接口。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>(</span><span class=kd>function</span><span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=nx>exports</span><span class=p>,</span> <span class=nx>module</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// exports 是 module.exports 的一个引用
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=nx>module</span><span class=p>.</span><span class=nx>exports</span> <span class=o>===</span> <span class=nx>exports</span><span class=p>);</span> <span class=c1>// true
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 重新给 module.exports 赋值
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>module</span><span class=p>.</span><span class=nx>exports</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>SomeClass</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// exports 不再等于 module.exports
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=nx>module</span><span class=p>.</span><span class=nx>exports</span> <span class=o>===</span> <span class=nx>exports</span><span class=p>);</span> <span class=c1>// false
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>注意：对 module.exports 的赋值需要同步执行，不能放在回调函数里。下面这样是不行的：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// x.js
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>(</span><span class=kd>function</span><span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=nx>exports</span><span class=p>,</span> <span class=nx>module</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 错误用法
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>setTimeout</span><span class=p>(</span><span class=kd>function</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>module</span><span class=p>.</span><span class=nx>exports</span> <span class=o>=</span> <span class=p>{</span> <span class=nx>a</span><span class=o>:</span> <span class=s2>&#34;hello&#34;</span> <span class=p>};</span>
+</span></span><span class=line><span class=cl>  <span class=p>},</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>CMD经常使用的 API 只有 <code>define, require, require.async, exports, module.exports</code> 这五个。其他请看规范。</p><h1 id=3amd规范cmd规范的异同点>3.AMD规范CMD规范的异同点</h1><h2 id=相同点>相同点</h2><p>AMD与CMD的相同点是：都是 <strong>异步提前加载</strong>。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// AMD 
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>([</span><span class=s1>&#39;./a&#39;</span><span class=p>,</span> <span class=s1>&#39;./b&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>a</span><span class=p>,</span> <span class=nx>b</span><span class=p>)</span> <span class=p>{</span> 
+</span></span><span class=line><span class=cl>    <span class=c1>//在此时模块a和b都已加载完
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// CMD
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>(</span><span class=kd>function</span><span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=nx>exports</span><span class=p>,</span> <span class=nx>module</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//在此时模块a和b都已加载完
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kd>var</span> <span class=nx>a</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;./a&#39;</span><span class=p>);</span> 
+</span></span><span class=line><span class=cl>    <span class=nx>a</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=p>...</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=nx>b</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;./b&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>b</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=不同点>不同点</h2><p>而两者的区别，在上一篇中的AMD和CommonJS的区别已经说了一部分。玉伯在<a href=http://www.zhihu.com/question/20351507/answer/14859415>知乎</a>也有回答，或者看<a href=https://github.com/seajs/seajs/issues/277>这里</a>。主要有俩个，一个是执行时机不同，还有一个是书写风格不同。</p><h3 id=1执行时机>1.执行时机</h3><p>AMD是 <strong>提前执行</strong>，CMD是 <strong>延迟执行</strong>。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// AMD 
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>([</span><span class=s1>&#39;./a&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>a</span><span class=p>)</span> <span class=p>{</span> 
+</span></span><span class=line><span class=cl>    <span class=c1>// 在这之前a已经执行完并返回
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>a</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>()</span><span class=err>；</span>
+</span></span><span class=line><span class=cl>  <span class=p>...</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// CMD
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>(</span><span class=kd>function</span><span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=nx>exports</span><span class=p>,</span> <span class=nx>module</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=nx>a</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;./a&#39;</span><span class=p>);</span> <span class=c1>// 模块a在此时才执行
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>a</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=p>...</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=2书写风格>2.书写风格</h3><p>CMD 推崇<strong>依赖就近</strong>，AMD 推崇<strong>依赖前置</strong>。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// CMD
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>(</span><span class=kd>function</span><span class=p>(</span><span class=nx>require</span><span class=p>,</span> <span class=nx>exports</span><span class=p>,</span> <span class=nx>module</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=nx>a</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;./a&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>a</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 此处略去 100 行
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kd>var</span> <span class=nx>b</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;./b&#39;</span><span class=p>);</span> <span class=c1>// 依赖可以就近书写
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>b</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// ... 
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// AMD 默认推荐的是
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>([</span><span class=s1>&#39;./a&#39;</span><span class=p>,</span> <span class=s1>&#39;./b&#39;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>a</span><span class=p>,</span> <span class=nx>b</span><span class=p>)</span> <span class=p>{</span> <span class=c1>// 依赖必须一开始就写好
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>a</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 此处略去 100 行
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>b</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=p>...</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h1 id=end>End</h1><p>选择AMD还是CMD要看项目的需求和自己对写法的偏好，并没有绝对说哪个比哪个好。require.js成名较早，人气比较高。sea.js小而优雅，
+文档支持也比较好，国内还是有比较多人使用的。</p><p>下面介绍<code>require.js</code>的使用，请看下一篇：<a href=/post/2015/10-19-js-requirejs/>require.js的使用以及压缩策略</a></p></div><footer class=post-footer><div class=post-tags><a href=/tags/js/>js</a>
+<a href=/tags/module/>module</a>
+<a href=/tags/amd/>amd</a>
+<a href=/tags/cmd/>cmd</a></div><nav class=post-nav><a class=prev href=/post/2015/10-19-js-requirejs/><i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">JS模块化开发3：require.js的使用以及压缩策略</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/2015/10-17-js-module/><span class="next-text nav-default">JS模块化开发1：历史</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=cirplan/cirplan.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
+2015 -
+2022<span class=heart>🥕</span><span>胖乎乎的萝卜</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>

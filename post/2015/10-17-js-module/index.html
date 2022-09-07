@@ -1,0 +1,138 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>JS模块化开发1：历史 - 胖萝卜的菜园</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="胖乎乎的萝卜"><meta name=description content="JS模块化历史"><meta name=keywords content="js,module,amd,cmd"><link rel=canonical href=https://cirplan.github.io/post/2015/10-17-js-module/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link href=/sass/main.min.13b755479625487471ed020b20c7d7f5fa3af757dd4c943c3aedb3ae08d2fe9f.css rel=stylesheet><meta property="og:title" content="JS模块化开发1：历史"><meta property="og:description" content="JS模块化历史"><meta property="og:type" content="article"><meta property="og:url" content="https://cirplan.github.io/post/2015/10-17-js-module/"><meta property="article:section" content="post"><meta property="article:published_time" content="2015-10-07T00:26:43+08:00"><meta property="article:modified_time" content="2015-10-07T00:26:43+08:00"><meta itemprop=name content="JS模块化开发1：历史"><meta itemprop=description content="JS模块化历史"><meta itemprop=datePublished content="2015-10-07T00:26:43+08:00"><meta itemprop=dateModified content="2015-10-07T00:26:43+08:00"><meta itemprop=wordCount content="2141"><meta itemprop=keywords content="js,module,amd,cmd,"><meta name=twitter:card content="summary"><meta name=twitter:title content="JS模块化开发1：历史"><meta name=twitter:description content="JS模块化历史"></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>萝卜菜园</a></div><div class=mobile-navbar-icon id=mobile-navbar-icon><span></span>
+<span></span>
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=https://github.com/cirplan><li class=mobile-menu-item>Github</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>萝卜菜园</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/cirplan>Github</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>JS模块化开发1：历史</h1><div class=post-meta><span class=post-time>2015-10-07</span><div class=post-category><a href=/categories/js/>JS</a></div><span class=more-meta>约 2141 字</span>
+<span class=more-meta>预计阅读 5 分钟</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#前言>前言：</a></li><li><a href=#本文内容>本文内容：</a></li><li><a href=#1-为什么需要模块化>1. 为什么需要模块化</a><ul><li><a href=#11-命名冲突>1.1 命名冲突</a></li><li><a href=#12-模块依赖>1.2 模块依赖</a></li><li><a href=#13-常规处理>1.3 常规处理</a></li></ul></li><li><a href=#2模块化的发展历程>2.模块化的发展历程</a></li><li><a href=#3amd和commonjs的区别>3.AMD和CommonJS的区别</a><ul><li><a href=#1执行时机有区别>1.执行时机有区别</a></li><li><a href=#2模块书写风格有争议>2.模块书写风格有争议</a></li></ul></li></ul></nav></div></div><div class=post-outdated><div class=warn><p>【注意】最后更新于 <span class=timeago datetime=2015-10-07T00:26:43 title=2015-10-07>2015-10-07, </span>，文中内容可能已过时，请谨慎使用。</p></div></div><div class=post-content><pre><code>开篇感言：一直以来懒散的很，以为想改就改，无须过于在意。但现在发现懒散的态度已经融到骨子里了，还能改否？曰：难。
+</code></pre><h1 id=前言>前言：</h1><p>JS模块化在现在早已不是一个新鲜的词语，随便在网络上搜一下都有一大堆文献资料，简单的、详细的应有尽有。
+而我最近才开始关注这方面，没有见证到09年以来COMMOMJS标准的诞生，AMD和CMD的崛起，未免是一个遗憾。
+所以这里整理下JS模块化的发展历程。</p><h1 id=本文内容>本文内容：</h1><p>1.为什么需要模块化</p><p>2.模块化的发展历程</p><p>3.AMD和CommonJS的区别</p><h1 id=1-为什么需要模块化>1. 为什么需要模块化</h1><p>为什么需要模块化，玉伯大大的这篇<a href=https://github.com/seajs/seajs/issues/547>前端模块化开发的价值</a>应该很好解答你的疑问。
+文章中提到的两点：<code>命名冲突</code>和<code>文件依赖</code>问题的确是JS一直以来的痛处。由与JS是10天内诞生的，所以没有其他高大上编程语言尽善尽美的模块管理机制。
+但不管这是作者的刻意为之还是兼顾不到，从ES6的规范来看，模块化已经是大势所趋了。</p><h2 id=11-命名冲突>1.1 命名冲突</h2><p>JS是一门容错性很高的语言，定义变量不需要定义类型，对于重复的命名既不会报错也不会停止执行。看例子：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// 重复声明
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>var</span> <span class=nx>a</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>a</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=nx>a</span><span class=p>);</span> <span class=c1>// 1
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=c1>// 重复声明&amp;赋值
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>var</span> <span class=nx>a</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>a</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=nx>a</span><span class=p>);</span> <span class=c1>// 2
+</span></span></span></code></pre></td></tr></table></div></div><p>上面的例子很好理解，JS的变量是先声明再赋值的，所以对于重复声明是没有影响的。但重复赋值就会把之前的值覆盖掉。如果在团队开发中，我无心把你的覆盖了，
+你无意把我写的覆盖了，等合并代码后，觉得整个码生都是灰暗的。</p><h2 id=12-模块依赖>1.2 模块依赖</h2><p>模块依赖在项目不大，或者不算复杂的情况还不算什么问题。但当项目代码数量上来了，管理模块依赖简直要命。最古老的方法就是人肉依赖：什么？引入这个
+JS文件报错了？之前不是用的没问题吗？应该是出BUG了，看下谁写的，叫他来看看&mldr;&mldr;如果你是作者对于这样的事情是不是觉得有点无奈，不由地感叹：时间都去哪了。
+当然，可以在JS文件的头注释上把要依赖的文件列出来。</p><h2 id=13-常规处理>1.3 常规处理</h2><p>既然这俩个问题早就有了，那之前是怎么处理的呢？控制好作用域&采用自执行函数生成对象。参考阮一峰老师的<a href=http://www.ruanyifeng.com/blog/2012/10/javascript_module.html>Javascript模块化编程（一）：模块的写法</a>。</p><p><strong>a. 常规的对象生成方法：</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=kd>var</span> <span class=nx>module1</span> <span class=o>=</span> <span class=k>new</span> <span class=nb>Object</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>  <span class=nx>_count</span> <span class=o>:</span> <span class=mi>0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=nx>m1</span> <span class=o>:</span> <span class=kd>function</span> <span class=p>(){</span>
+</span></span><span class=line><span class=cl>  　　　<span class=c1>//...
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=p>},</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=nx>m2</span> <span class=o>:</span> <span class=kd>function</span> <span class=p>(){</span>
+</span></span><span class=line><span class=cl>  <span class=c1>//...
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>这样在一定程度上减少变量的重复命名，调用直接 <code>module1.m1()</code> 就可以了。但缺点也很明显，可以直接修改对象内部的属性，模块之间看不出关联。</p><p><strong>b. 采用立即执行函数</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=kd>var</span> <span class=nx>module1</span> <span class=o>=</span> <span class=p>(</span><span class=kd>function</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>　　<span class=kd>var</span> <span class=nx>_count</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>　　<span class=kd>var</span> <span class=nx>m1</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>　　　　<span class=c1>//...
+</span></span></span><span class=line><span class=cl><span class=c1></span>　　<span class=p>};</span>
+</span></span><span class=line><span class=cl>　　<span class=kd>var</span> <span class=nx>m2</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>　　　　<span class=c1>//...
+</span></span></span><span class=line><span class=cl><span class=c1></span>　　<span class=p>};</span>
+</span></span><span class=line><span class=cl>　　<span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>　　　　<span class=nx>m1</span> <span class=o>:</span> <span class=nx>m1</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>　　　　<span class=nx>m2</span> <span class=o>:</span> <span class=nx>m2</span>
+</span></span><span class=line><span class=cl>　　<span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=p>})();</span>
+</span></span><span class=line><span class=cl><span class=nx>console</span><span class=p>.</span><span class=nx>info</span><span class=p>(</span><span class=nx>module1</span><span class=p>.</span><span class=nx>_count</span><span class=p>);</span> <span class=c1>//undefined
+</span></span></span></code></pre></td></tr></table></div></div><p>这样对象内部属性就修改不了。但这样看不出模块之间的依赖。</p><p><strong>c. 输入全局变量</strong></p><p>显式地将其他变量输入模块，可以明确模块依赖。ex：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=kd>var</span> <span class=nx>module1</span> <span class=o>=</span> <span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>$</span><span class=p>,</span> <span class=nx>YAHOO</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>　　<span class=c1>//...
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>})(</span><span class=nx>jQuery</span><span class=p>,</span> <span class=nx>YAHOO</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><p>在没有模块加载器的情况下，这样算是比较好的解决方案了。一方面限制了变量作用域，另外显示把依赖输入模块，一目了然。</p><h1 id=2模块化的发展历程>2.模块化的发展历程</h1><p>参考玉伯的<a href=https://github.com/seajs/seajs/issues/588>前端模块化开发那点历史</a>。</p><p>在2009年，ServerJS诞生了，其社区推出<a href=http://wiki.commonjs.org/wiki/Modules>Modules/1.0</a>规范，Node.js采用部分该规范并获得不错的效果。ex:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=kd>var</span> <span class=nx>a</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;./a&#39;</span><span class=p>)</span>  <span class=c1>// 加载模块（同步加载）
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>a</span><span class=p>.</span><span class=nx>doSomething</span><span class=p>()</span>         <span class=c1>// 等上一句执行完才会执行
+</span></span></span></code></pre></td></tr></table></div></div><p>ServerJS为了把这套规范推到浏览器端，就改名叫做CommonJS，同时激烈争论Modules的下一版规范。分歧和冲突由此诞生，逐步形成了三大流派：</p><p>1.<strong>Modules/1.x</strong> 流派。这个观点觉得 1.x 规范已经够用，只要移植到浏览器端就好。要做的是新增 <a href=http://wiki.commonjs.org/wiki/Modules/Transport>Modules/Transport</a> 规范，即在浏览器上运行前，先通过转换工具将模块转换为符合 Transport 规范的代码。主流代表是服务端的开发人员。现在值得关注的有两个实现：越来越火的 <a href=https://github.com/componentjs/component>component</a> 和走在前沿的 <a href=https://github.com/esnext/es6-module-transpiler>es6 module transpiler</a>。</p><p>2.<strong>Modules/Async</strong> 流派。这个观点觉得浏览器有自身的特征，不应该直接用 Modules/1.x 规范。这个观点下的典型代表是 <a href=http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition>AMD</a> 规范及其实现 <a href=http://requirejs.org/>RequireJS</a>。</p><p>3.<strong>Modules/2.0</strong> 流派。这个观点觉得浏览器有自身的特征，不应该直接用 Modules/1.x 规范，但应该尽可能与 Modules/1.x 规范保持一致。这个观点下的典型代表是 <a href=https://code.google.com/p/bravojs/>BravoJS</a> 和 FlyScript 的作者。BravoJS 作者对 CommonJS 的社区的贡献很大，这份 <a href=http://www.page.ca/~wes/CommonJS/modules-2.0-7/>Modules/2.0-draft</a> 规范花了很多心思。FlyScript 的作者提出了 <a href=http://wiki.commonjs.org/wiki/Modules/Wrappings>Modules/Wrappings</a> 规范，这规范是 CMD 规范的前身。可惜的是 BravoJS 太学院派，FlyScript 后来做了自我阉割，将整个网站（flyscript.org）下线了。</p><h1 id=3amd和commonjs的区别>3.AMD和CommonJS的区别</h1><h2 id=1执行时机有区别>1.执行时机有区别</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// Modules/1.0:
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>var</span> <span class=nx>a</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s2>&#34;./a&#34;</span><span class=p>)</span> <span class=c1>// 执行到此时，a.js 才同步下载并执行
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=c1>// AMD:
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>([</span><span class=s2>&#34;a&#34;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>a</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 在这里，模块 a 已经下载并执行好
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=c1>// ...
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=p>})</span>
+</span></span></code></pre></td></tr></table></div></div><p>AMD 里提前下载 a.js 是浏览器的限制，没办法做到同步下载，这个社区都认可。但执行，AMD 里是 Early Executing，Modules/1.0 里是第一次 require 时才执行。这个差异很多人不能接受，包括持 Modules/2.0 观点的也不能接受。这个差异，也导致实质上 Node 的模块与 AMD 模块是无法共享的，存在潜在冲突。</p><h2 id=2模块书写风格有争议>2.模块书写风格有争议</h2><p>AMD 风格下，通过参数传入依赖模块，破坏了 <strong>就近声明</strong> 原则。比如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=nx>define</span><span class=p>([</span><span class=s2>&#34;a&#34;</span><span class=p>,</span> <span class=s2>&#34;b&#34;</span><span class=p>,</span> <span class=s2>&#34;c&#34;</span><span class=p>,</span> <span class=s2>&#34;d&#34;</span><span class=p>,</span> <span class=s2>&#34;e&#34;</span><span class=p>,</span> <span class=s2>&#34;f&#34;</span><span class=p>],</span> <span class=kd>function</span><span class=p>(</span><span class=nx>a</span><span class=p>,</span> <span class=nx>b</span><span class=p>,</span> <span class=nx>c</span><span class=p>,</span> <span class=nx>d</span><span class=p>,</span> <span class=nx>e</span><span class=p>,</span> <span class=nx>f</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 等于在最前面申明并初始化了要用到的所有模块
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=kc>false</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 即便压根儿没用到某个模块 b，但 b 还是提前执行了
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nx>b</span><span class=p>.</span><span class=nx>foo</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>})</span>
+</span></span></code></pre></td></tr></table></div></div><p>还有就是 AMD 下 require 的用法，以及增加了全局变量 define 等细节，当时在社区被很多人不认可。</p><p>最后，AMD 从 CommonJS 社区独立了出去，单独成为了 AMD 社区。这样的结局不免的让人唏嘘不已。</p><p>下一篇：<a href=/post/2015/10-18-js-amd-cmd/>AMD与CMD的规范</a>。</p><p>参考：</p><ul><li><a href=https://github.com/seajs/seajs/issues/547>https://github.com/seajs/seajs/issues/547</a></li><li><a href=https://github.com/seajs/seajs/issues/588>https://github.com/seajs/seajs/issues/588</a></li><li><a href=http://huangxuan.me/2015/05/25/js-module-loader/>JavaScript Module Loader</a></li></ul></div><footer class=post-footer><div class=post-tags><a href=/tags/js/>js</a>
+<a href=/tags/module/>module</a>
+<a href=/tags/amd/>amd</a>
+<a href=/tags/cmd/>cmd</a></div><nav class=post-nav><a class=prev href=/post/2015/10-18-js-amd-cmd/><i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">JS模块化开发2：AMD与CMD规范</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/2015/07-06-canvas-resolution/><span class="next-text nav-default">canvas分辨率问题</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=cirplan/cirplan.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
+2015 -
+2022<span class=heart>🥕</span><span>胖乎乎的萝卜</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>

@@ -1,0 +1,98 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>Promise初级教程1：简单使用 - 胖萝卜的菜园</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="胖乎乎的萝卜"><meta name=description content="Promise初级教程1：简单使用"><meta name=keywords content="js,promise"><link rel=canonical href=https://cirplan.github.io/post/2016/01-22-promise-study-1/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link href=/sass/main.min.13b755479625487471ed020b20c7d7f5fa3af757dd4c943c3aedb3ae08d2fe9f.css rel=stylesheet><meta property="og:title" content="Promise初级教程1：简单使用"><meta property="og:description" content="Promise初级教程1：简单使用"><meta property="og:type" content="article"><meta property="og:url" content="https://cirplan.github.io/post/2016/01-22-promise-study-1/"><meta property="article:section" content="post"><meta property="article:published_time" content="2016-01-22T01:12:14+08:00"><meta property="article:modified_time" content="2016-01-22T01:12:14+08:00"><meta itemprop=name content="Promise初级教程1：简单使用"><meta itemprop=description content="Promise初级教程1：简单使用"><meta itemprop=datePublished content="2016-01-22T01:12:14+08:00"><meta itemprop=dateModified content="2016-01-22T01:12:14+08:00"><meta itemprop=wordCount content="1017"><meta itemprop=keywords content="js,promise,"><meta name=twitter:card content="summary"><meta name=twitter:title content="Promise初级教程1：简单使用"><meta name=twitter:description content="Promise初级教程1：简单使用"></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>萝卜菜园</a></div><div class=mobile-navbar-icon id=mobile-navbar-icon><span></span>
+<span></span>
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=https://github.com/cirplan><li class=mobile-menu-item>Github</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>萝卜菜园</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/cirplan>Github</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>Promise初级教程1：简单使用</h1><div class=post-meta><span class=post-time>2016-01-22</span><div class=post-category><a href=/categories/js/>js</a></div><span class=more-meta>约 1017 字</span>
+<span class=more-meta>预计阅读 3 分钟</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#promise-是什么>Promise 是什么</a></li><li><a href=#promise怎么用>Promise怎么用？</a><ul><li><a href=#新建promise对象>新建Promise对象</a></li><li><a href=#then>then?</a></li><li><a href=#例子>例子</a></li></ul></li></ul></nav></div></div><div class=post-outdated><div class=warn><p>【注意】最后更新于 <span class=timeago datetime=2016-01-22T01:12:14 title=2016-01-22>2016-01-22, </span>，文中内容可能已过时，请谨慎使用。</p></div></div><div class=post-content><p>就快过年了，项目组是准备在回去之前，发完2.4版本。然后现在已经进入测试后期了。</p><p>趁着现在有点时间，把之前一直想写的promise写一下。</p><pre><code>刚说完就来一个Bug，先去改bug。
+</code></pre><p>过了N个半小时后，又回来了。让我们直接进入主题。</p><h1 id=promise-是什么>Promise 是什么</h1><p><strong>承诺</strong>。就像有人问：你是男的吗？你可以做出俩种回答：是或者不是。</p><p>回答是，那就是肯定的承诺。</p><p>回答不是，那就是拒绝的承诺。</p><p>只能有俩种吗?是的，Promise里面只能有两种承诺，肯定或否定。</p><p>那我什么时候需要这样的承诺？感觉用不上啊？<strong>在异步调用的时候</strong>。</p><h1 id=promise怎么用>Promise怎么用？</h1><p>一般学习一个新东西，最直接的问题是怎么用。不然有可能造成看了一堆理论，还是云里雾里。引用一句话就是：道理我都懂，然后呢？</p><h2 id=新建promise对象>新建Promise对象</h2><p>Promise作为构造函数，新建如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=kd>var</span> <span class=nx>handler</span> <span class=o>=</span> <span class=k>new</span> <span class=nb>Promise</span><span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>resolve</span><span class=p>,</span> <span class=nx>reject</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=p>...</span> <span class=c1>// 逻辑代码
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>嗯，新建Promise对象很简单嘛，就传入一个函数作为参数，然后逻辑代码在函数里面。这个函数再带着 resolve 和 reject 俩个函数作为参数。
+什么？resolve & reject是函数？没错，他们是函数。那他们有什么作用？</p><p>resolve 表示肯定承诺。</p><p>reject 表示否定承诺。</p><h2 id=then>then?</h2><p>定义了Promise对象，然后呢？然后就要处理肯定或者否定的承诺啊。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=kd>var</span> <span class=nx>handler</span> <span class=o>=</span> <span class=k>new</span> <span class=nb>Promise</span><span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>resolve</span><span class=p>,</span> <span class=nx>reject</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=p>...</span> <span class=c1>// 逻辑代码
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span> 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>handler</span><span class=p>.</span><span class=nx>then</span><span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>val</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=p>...</span> <span class=c1>// 肯定承诺的回调
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>},</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=p>...</span> <span class=c1>// 否定承诺的回调
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>这里可以看到，<code>then(resolve, reject)</code>方法接收两个参数，分别是肯定承诺的回调和否定承诺的回调。</p><p>到这里，基本的Promise使用就介绍结束了。什么？还是不懂？我们看看例子。</p><h2 id=例子>例子</h2><p>我们来看看这个例子，新建了Promise对象，500ms后进行了肯定的承诺。因为新版Chrome和Firefox是自带Promise，所以我们可以直接在控制台里测试。</p><p>肯定承诺例子：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// ex1
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>var</span> <span class=nx>startTime</span> <span class=o>=</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;start&#39;</span><span class=p>,</span> <span class=nx>startTime</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>handler</span> <span class=o>=</span> <span class=k>new</span> <span class=nb>Promise</span><span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>resolve</span><span class=p>,</span> <span class=nx>reject</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>setTimeout</span><span class=p>(</span><span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>resolve</span><span class=p>(</span><span class=s1>&#39;done&#39;</span><span class=p>,</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>()</span> <span class=o>-</span> <span class=nx>startTime</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>},</span> <span class=mi>500</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span> 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>handler</span><span class=p>.</span><span class=nx>then</span><span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>val</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;then resolve&#39;</span><span class=p>,</span> <span class=nx>val</span><span class=p>,</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>()</span> <span class=o>-</span> <span class=nx>startTime</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>},</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;then reject&#39;</span><span class=p>,</span> <span class=nx>e</span><span class=p>,</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>()</span> <span class=o>-</span> <span class=nx>startTime</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=/post/2016/images/20160122promise/ex1.png alt=ex1></p><p>嗯，在这个例子了，我们可以明显感受到 resolve 函数的用法。那么 reject 呢？其实是差不多的。</p><p>否定承诺例子：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// ex2
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>var</span> <span class=nx>startTime</span> <span class=o>=</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;start&#39;</span><span class=p>,</span> <span class=nx>startTime</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kd>var</span> <span class=nx>handler</span> <span class=o>=</span> <span class=k>new</span> <span class=nb>Promise</span><span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>resolve</span><span class=p>,</span> <span class=nx>reject</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>setTimeout</span><span class=p>(</span><span class=kd>function</span> <span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=nx>reject</span><span class=p>(</span><span class=s1>&#39;done&#39;</span><span class=p>,</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>()</span> <span class=o>-</span> <span class=nx>startTime</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>},</span> <span class=mi>500</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span> 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=nx>handler</span><span class=p>.</span><span class=nx>then</span><span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>val</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;then resolve&#39;</span><span class=p>,</span> <span class=nx>val</span><span class=p>,</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>()</span> <span class=o>-</span> <span class=nx>startTime</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>},</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;then reject&#39;</span><span class=p>,</span> <span class=nx>e</span><span class=p>,</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>()</span> <span class=o>-</span> <span class=nx>startTime</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=/post/2016/images/20160122promise/ex2.png alt=ex2></p><p>在上面这个例子，给出了拒绝的承诺，然后就会执行 then 方法的 reject 回调函数。是不是很简单。</p><p>ok，到目前为止，你可以大声的说，你会用promise啦～不过这个只是简单的介绍，让大家初步了解而已。</p><p>下一篇，<a href=/post/2016/01-25-promise-study-2/>介绍Promise的详细使用</a>。</p></div><footer class=post-footer><div class=post-tags><a href=/tags/js/>js</a>
+<a href=/tags/promise/>promise</a></div><nav class=post-nav><a class=prev href=/post/2016/01-25-promise-study-2/><i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">Promise初级教程2：详细介绍</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/2015/11-30-html5-audio/><span class="next-text nav-default">Audio在移动端的实践</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=cirplan/cirplan.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
+2015 -
+2022<span class=heart>🥕</span><span>胖乎乎的萝卜</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>
