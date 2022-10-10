@@ -3,6 +3,7 @@
 [https://cirplan.github.io](https://cirplan.github.io)
 
 ## 2022
+* [10-10 TS的内置类型](https://cirplan.github.io/post/2022/10-10-ts-utility-types/)
 * [08-23 浅聊壮志凌云2](https://cirplan.github.io/post/2022/08-22-talk-about-maverick/)
 
 ## 2017
