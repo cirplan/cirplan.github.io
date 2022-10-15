@@ -1,0 +1,146 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>java的urlrewritefilter简单使用 - Cirplan</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="cirplan"><meta name=description content="java的urlrewritefilter简单使用"><meta name=keywords content="java,urlrewritefilter"><link rel=canonical href=https://cirplan.github.io/post/2014/12-12-java-urlrewritefilter/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link href=/sass/main.min.4325dd250c3d3e29d579a819f16fd876adbc5a03b3a1b32d2eefe0a067e8f219.css rel=stylesheet><meta property="og:title" content="java的urlrewritefilter简单使用"><meta property="og:description" content="java的urlrewritefilter简单使用"><meta property="og:type" content="article"><meta property="og:url" content="https://cirplan.github.io/post/2014/12-12-java-urlrewritefilter/"><meta property="article:section" content="post"><meta property="article:published_time" content="2014-12-12T21:42:40+08:00"><meta property="article:modified_time" content="2014-12-12T21:42:40+08:00"><meta itemprop=name content="java的urlrewritefilter简单使用"><meta itemprop=description content="java的urlrewritefilter简单使用"><meta itemprop=datePublished content="2014-12-12T21:42:40+08:00"><meta itemprop=dateModified content="2014-12-12T21:42:40+08:00"><meta itemprop=wordCount content="959"><meta itemprop=keywords content="java,urlrewritefilter,"><meta name=twitter:card content="summary"><meta name=twitter:title content="java的urlrewritefilter简单使用"><meta name=twitter:description content="java的urlrewritefilter简单使用"></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>Cirplan</a></div><div class=mobile-navbar-icon id=mobile-navbar-icon><span></span>
+<span></span>
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=https://github.com/cirplan><li class=mobile-menu-item>Github</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>Cirplan</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/cirplan>Github</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>java的urlrewritefilter简单使用</h1><div class=post-meta><span class=post-time>2014-12-12</span><div class=post-category><a href=/categories/java/>java</a></div><span class=more-meta>约 959 字</span>
+<span class=more-meta>预计阅读 2 分钟</span></div></header><div class=post-outdated><div class=warn><p>【注意】最后更新于 <span class=timeago datetime=2014-12-12T21:42:40 title=2014-12-12>2014-12-12, </span>，文中内容可能已过时，请谨慎使用。</p></div></div><div class=post-content><p>由于项目中只用了<code>tomcat</code>，没有用<code>Apache</code>，然后想做<code>www</code>重定向。就如让所有访问<code>baidu.com</code>都301永久重定向到<code>www.baidu.com</code>。然后时间紧急，对<code>Apache</code>不是很熟悉（懒的去配置），就直接用了<code>java</code>的一个包：
+<code>urlrewritefilter</code>。</p><p>官网是：<a href=http://tuckey.org/urlrewrite/>http://tuckey.org/urlrewrite/</a>。使用方法也很简单，这里简单说下。</p><h3 id=1下载>1.下载</h3><p>先去下载<code>urlrewritefilter-x.x.x.jar </code>包。下载好放到<code>WEB-INF/lib</code>目录下。</p><h3 id=2配置webxml>2.配置web.xml</h3><p>修改web.xml，把下面代码放到所有servlet mappings的前面。</p><pre><code>&lt;filter&gt;
+    &lt;filter-name&gt;UrlRewriteFilter&lt;/filter-name&gt;
+    &lt;filter-class&gt;org.tuckey.web.filters.urlrewrite.UrlRewriteFilter&lt;/filter-class&gt;
+&lt;/filter&gt;
+&lt;filter-mapping&gt;
+    &lt;filter-name&gt;UrlRewriteFilter&lt;/filter-name&gt;
+    &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;dispatcher&gt;REQUEST&lt;/dispatcher&gt;
+    &lt;dispatcher&gt;FORWARD&lt;/dispatcher&gt;
+&lt;/filter-mapping&gt;
+</code></pre><p>这里是对应的参数文档 <a href=http://urlrewritefilter.googlecode.com/svn/trunk/src/doc/manual/4.0/index.html#filterparams>filterparams</a>。这就配置完了（这里有个很坑爹的问题，待会说）。</p><h3 id=3增加-urlrewritexml>3.增加 <code>urlrewrite.xml</code></h3><p>然后在 <code>WEB-INF</code> 文件夹里增加多 <code>urlrewrite.xml</code> 文件。</p><p>下面是官方标准urlrewrite.xml文档：</p><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;!DOCTYPE urlrewrite PUBLIC &quot;-//tuckey.org//DTD UrlRewrite 4.0//EN&quot;
+        &quot;http://www.tuckey.org/res/dtds/urlrewrite4.0.dtd&quot;&gt;
+
+&lt;!--
+
+    Configuration file for UrlRewriteFilter
+    http://www.tuckey.org/urlrewrite/
+
+--&gt;
+&lt;urlrewrite&gt;
+
+    &lt;rule&gt;
+        &lt;note&gt;
+            The rule means that requests to /test/status/ will be redirected to /rewrite-status
+            the url will be rewritten.
+        &lt;/note&gt;
+        &lt;from&gt;/test/status/&lt;/from&gt;
+        &lt;to type=&quot;redirect&quot;&gt;%{context-path}/rewrite-status&lt;/to&gt;
+    &lt;/rule&gt;
+
+
+    &lt;outbound-rule&gt;
+        &lt;note&gt;
+            The outbound-rule specifies that when response.encodeURL is called (if you are using JSTL c:url)
+            the url /rewrite-status will be rewritten to /test/status/.
+
+            The above rule and this outbound-rule means that end users should never see the
+            url /rewrite-status only /test/status/ both in thier location bar and in hyperlinks
+            in your pages.
+        &lt;/note&gt;
+        &lt;from&gt;/rewrite-status&lt;/from&gt;
+        &lt;to&gt;/test/status/&lt;/to&gt;
+    &lt;/outbound-rule&gt;
+
+
+    &lt;!--
+
+    INSTALLATION
+
+        in your web.xml add...
+
+        &lt;filter&gt;
+            &lt;filter-name&gt;UrlRewriteFilter&lt;/filter-name&gt;
+            &lt;filter-class&gt;org.tuckey.web.filters.urlrewrite.UrlRewriteFilter&lt;/filter-class&gt;
+            &lt;init-param&gt;
+                &lt;param-name&gt;logLevel&lt;/param-name&gt;
+                &lt;param-value&gt;WARN&lt;/param-value&gt;
+            &lt;/init-param&gt;
+        &lt;/filter&gt;
+        &lt;filter-mapping&gt;
+            &lt;filter-name&gt;UrlRewriteFilter&lt;/filter-name&gt;
+            &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+        &lt;/filter-mapping&gt;
+
+     EXAMPLES
+
+     Redirect one url
+        &lt;rule&gt;
+            &lt;from&gt;/some/old/page.html&lt;/from&gt;
+            &lt;to type=&quot;redirect&quot;&gt;/very/new/page.html&lt;/to&gt;
+        &lt;/rule&gt;
+
+    Redirect a directory
+        &lt;rule&gt;
+            &lt;from&gt;/some/olddir/(.*)&lt;/from&gt;
+            &lt;to type=&quot;redirect&quot;&gt;/very/newdir/$1&lt;/to&gt;
+        &lt;/rule&gt;
+
+    Clean a url
+        &lt;rule&gt;
+            &lt;from&gt;/products/([0-9]+)&lt;/from&gt;
+            &lt;to&gt;/products/index.jsp?product_id=$1&lt;/to&gt;
+        &lt;/rule&gt;
+    eg, /products/1234 will be passed on to /products/index.jsp?product_id=1234 without the user noticing.
+
+    Browser detection
+        &lt;rule&gt;
+            &lt;condition name=&quot;user-agent&quot;&gt;Mozilla/[1-4]&lt;/condition&gt;
+            &lt;from&gt;/some/page.html&lt;/from&gt;
+            &lt;to&gt;/some/page-for-old-browsers.html&lt;/to&gt;
+        &lt;/rule&gt;
+    eg, will pass the request for /some/page.html on to /some/page-for-old-browsers.html only for older
+    browsers whose user agent srtings match Mozilla/1, Mozilla/2, Mozilla/3 or Mozilla/4.
+
+    Centralised browser detection
+        &lt;rule&gt;
+            &lt;condition name=&quot;user-agent&quot;&gt;Mozilla/[1-4]&lt;/condition&gt;
+            &lt;set type=&quot;request&quot; name=&quot;browser&quot;&gt;moz&lt;/set&gt;
+        &lt;/rule&gt;
+    eg, all requests will be checked against the condition and if matched
+    request.setAttribute(&quot;browser&quot;, &quot;moz&quot;) will be called.
+
+    --&gt;
+
+&lt;/urlrewrite&gt;
+</code></pre><p>我们经常用到的就两个：</p><pre><code> //重定向 地址栏显示的是实际地址
+    &lt;rule&gt;
+        &lt;from&gt;/some/olddir/(.*)&lt;/from&gt;
+        &lt;to type=&quot;redirect&quot;&gt;/very/newdir/$1&lt;/to&gt;
+    &lt;/rule&gt;
+
+//转发 地址了显示的是虚拟地址
+    &lt;rule&gt;
+        &lt;from&gt;/products/([0-9]+)&lt;/from&gt;
+        &lt;to&gt;/products/index.jsp?product_id=$1&lt;/to&gt;
+    &lt;/rule&gt;
+eg, /products/1234 will be passed on to /products/index.jsp?product_id=1234 without the user noticing.
+</code></pre><p>匹配的是java的正则表达式。</p><h3 id=4www301重定向>4.www301重定向</h3><p>下面就是我要用到的：</p><pre><code>//如果地址的域名不是 www.baidu.com 就会跳转到www.baidu.com
+//为了考虑开发情况，把 localhost 也加到里面
+&lt;rule&gt;
+    &lt;name&gt;seo redirect&lt;/name&gt;
+    &lt;condition name=&quot;host&quot; operator=&quot;notequal&quot;&gt;^www.baidu.com&lt;/condition&gt;
+    &lt;condition name=&quot;host&quot; operator=&quot;notequal&quot;&gt;^localhost&lt;/condition&gt;
+    &lt;from&gt;^/(.*)&lt;/from&gt;
+    &lt;to type=&quot;permanent-redirect&quot; last=&quot;true&quot;&gt;http://www.baidu.com/$1&lt;/to&gt;
+&lt;/rule&gt;  
+</code></pre><p>到这里为止，一切都正常。但是我用转发却不行。</p><pre><code>&lt;rule&gt;
+    &lt;from&gt;/products/([0-9]+)&lt;/from&gt;
+    &lt;to&gt;/products/index.jsp?product_id=$1&lt;/to&gt;
+&lt;/rule&gt;
+</code></pre><p>访问<code>localhost:8080/products/123</code>一直报<code>404</code>，而且还是乱码。</p><p>这个问题纠结了好久。<code>api</code>里也没看到哪里出问题了。最后，终于发现，是转发后被<code>struts</code>拦截了。所以，要修改<code>web.xml</code>。在<code>struts2</code>的<code>&lt;filter-mapping></code>里加上：</p><pre><code>&lt;dispatcher&gt;REQUEST&lt;/dispatcher&gt;  
+&lt;dispatcher&gt;FORWARD&lt;/dispatcher&gt; 
+</code></pre><p>就可以了。浪费好多时间去弄这个问题，囧~</p><p>参考：</p><ul><li><a href=http://xlaohe1.iteye.com/blog/1130854>http://xlaohe1.iteye.com/blog/1130854</a></li><li><a href=http://fanzhongyun.iteye.com/blog/1221170>http://fanzhongyun.iteye.com/blog/1221170</a></li><li><a href=http://blog.csdn.net/ygf215/article/details/4766285>http://blog.csdn.net/ygf215/article/details/4766285</a></li><li><a href=http://nematodes.org/martin/2010/02/04/301-permanent-redirect-with-tomcat-howto/>http://nematodes.org/martin/2010/02/04/301-permanent-redirect-with-tomcat-howto/</a></li></ul></div><footer class=post-footer><div class=post-tags><a href=/tags/java/>java</a>
+<a href=/tags/urlrewritefilter/>urlrewritefilter</a></div><nav class=post-nav><a class=prev href=/post/2015/01-04-year-summary/><i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">2014年回顾</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/2014/12-08-css-selector/><span class="next-text nav-default">[译]css选择器渲染优化</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
+2013 -
+2022<span class=heart>🥕</span><span>cirplan</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>

@@ -1,0 +1,354 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>JS中apply、call和bind的定义和使用 - Cirplan</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="cirplan"><meta name=description content="JS中apply、call和bind的定义和使用"><meta name=keywords content="js,apply,call,bind"><link rel=canonical href=https://cirplan.github.io/post/2016/01-28-apply-call/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link href=/sass/main.min.4325dd250c3d3e29d579a819f16fd876adbc5a03b3a1b32d2eefe0a067e8f219.css rel=stylesheet><meta property="og:title" content="JS中apply、call和bind的定义和使用"><meta property="og:description" content="JS中apply、call和bind的定义和使用"><meta property="og:type" content="article"><meta property="og:url" content="https://cirplan.github.io/post/2016/01-28-apply-call/"><meta property="article:section" content="post"><meta property="article:published_time" content="2016-01-28T22:04:28+08:00"><meta property="article:modified_time" content="2016-01-28T22:04:28+08:00"><meta itemprop=name content="JS中apply、call和bind的定义和使用"><meta itemprop=description content="JS中apply、call和bind的定义和使用"><meta itemprop=datePublished content="2016-01-28T22:04:28+08:00"><meta itemprop=dateModified content="2016-01-28T22:04:28+08:00"><meta itemprop=wordCount content="3050"><meta itemprop=keywords content="js,apply,call,bind,"><meta name=twitter:card content="summary"><meta name=twitter:title content="JS中apply、call和bind的定义和使用"><meta name=twitter:description content="JS中apply、call和bind的定义和使用"></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>Cirplan</a></div><div class=mobile-navbar-icon id=mobile-navbar-icon><span></span>
+<span></span>
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=https://github.com/cirplan><li class=mobile-menu-item>Github</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>Cirplan</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/cirplan>Github</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>JS中apply、call和bind的定义和使用</h1><div class=post-meta><span class=post-time>2016-01-28</span><div class=post-category><a href=/categories/js/>js</a></div><span class=more-meta>约 3050 字</span>
+<span class=more-meta>预计阅读 7 分钟</span></div></header><div class=post-outdated><div class=warn><p>【注意】最后更新于 <span class=timeago datetime=2016-01-28T22:04:28 title=2016-01-28>2016-01-28, </span>，文中内容可能已过时，请谨慎使用。</p></div></div><div class=post-content><p>本来没打算想写这个的，因为一直觉得 apply 和 call 挺简单的，不就是改变运行上下文嘛。然后 apply 和 call 只是参数接受的方式不同而已。</p><p>但在用的时候，总是会有点问题，囧。应该是没理解透吧，所以再琢磨琢磨，在这里记录下。</p><h2 id=1-call-规范1>1. call <a href=https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call>规范</a></h2><h3 id=11-定义>1.1 定义</h3><pre><code>The call() method calls a function with a given this value and arguments provided individually.
+</code></pre><p>call 方法通过给定的 this value 和一系列的参数，来调用函数。</p><h3 id=12-syntax-语法>1.2 Syntax 语法</h3><p><code>fun.call(thisArg[, arg1[, arg2[, ...]]])</code></p><h4 id=121-parameters-参数>1.2.1 Parameters 参数</h4><p><strong>thisArg</strong></p><pre><code>The value of this provided for the call to fun. Note that this may not be the actual value seen by the method: if the method is a function in non-strict mode code, null and undefined will be replaced with the global object and primitive values will be converted to objects.
+</code></pre><p>函数运行时的 this 值。要注意的是，有可能你看到的值并不是函数实际执行的值：如果函数是在<code>非严格模式</code>下，指定为 null 或 undefined 的 this 值会被替换成全局对象，
+原始值（数字，字符串，布尔值）会被转为对象。看测试代码（可以直接粘到控制台执行）：</p><pre><code>// 1. 非严格模式
+// 1.1 null
+function log () {
+    console.log('line1', this);
+    console.log('line2', window === this);
+}
+
+log.call(null);
+// line1 Window {top: Window, location: Location, document: document, window: Window, external: Object…}
+// line2 true
+
+// 1.2 undefined
+log.call(undefined);
+// line1 Window {top: Window, location: Location, document: document, window: Window, external: Object…}
+// line2 true
+
+// 1.3 number
+function log () {
+    console.log('line1', this);
+    console.log('line2', this instanceof Number);
+}
+
+log.call(1);
+// line1 Number {[[PrimitiveValue]]: 1}
+// line2 true
+
+// 1.4 string
+function log () {
+    console.log('line1', this);
+    console.log('line2', this instanceof String);
+}
+
+log.call('str');
+// line1 String {0: &quot;s&quot;, 1: &quot;t&quot;, 2: &quot;r&quot;, length: 3, [[PrimitiveValue]]: &quot;str&quot;}
+// line2 true
+
+1.5 boolbean
+function log () {
+    console.log('line1', this);
+    console.log('line2', this instanceof Boolean);
+}
+
+log.call(true);
+// line1 Boolean {[[PrimitiveValue]]: true}
+// line2 true
+
+///////////////////////////////////////////////////////////////////////////////
+
+// 2. 严格模式，this 为指定值
+(function () {
+    &quot;use strict&quot;;
+
+    function say () {
+        console.log(this);
+    }
+
+    say.call(null);
+
+})();
+// null
+</code></pre><p><strong>arg1, arg2, &mldr;</strong></p><pre><code>Arguments for the object.
+</code></pre><p>方法的参数。</p><h3 id=13-description-描述>1.3 Description 描述</h3><pre><code>A different this object can be assigned when calling an existing function. this refers to the current object, the calling object. With call, you can write a method once and then inherit it in another object, without having to rewrite the method for the new object.
+</code></pre><p>方法可以被不同的对象调用。this 会被指定为当前调用对象。通过 call ，你只需要写一次方法，就可以被其他对象继承，而不需要为新对象重写方法。</p><h3 id=14-examples-例子>1.4 Examples 例子</h3><p><strong>1.4.1 Using call to chain constructors for an object.</strong></p><p>让对象链接构造函数（好别扭，不知道是不是这样翻译）？</p><pre><code>function Product(name, price) {
+  this.name = name;
+  this.price = price;
+
+  if (price &lt; 0) {
+    throw RangeError('Cannot create product ' +
+                      this.name + ' with a negative price');
+  }
+}
+
+function Food(name, price) {
+  Product.call(this, name, price);
+  this.category = 'food';
+}
+
+function Toy(name, price) {
+  Product.call(this, name, price);
+  this.category = 'toy';
+}
+
+var cheese = new Food('feta', 5);
+var fun = new Toy('robot', 40);
+// Food {name: &quot;feta&quot;, price: 5, category: &quot;food&quot;}
+// Toy {name: &quot;robot&quot;, price: 40, category: &quot;toy&quot;}
+</code></pre><p>作用：复制构造函数的属性，方法。</p><p>那么能不能获得构造函数<strong>原型</strong>上的属性和方法呢？答案是肯定不行的，因为没有原型链。这一点要谨记。</p><pre><code>function Product(name, price) {
+  this.name = name;
+  this.price = price;
+
+  if (price &lt; 0) {
+    throw RangeError('Cannot create product ' +
+                      this.name + ' with a negative price');
+  }
+}
+
+Product.prototype.sayName = function () {
+    console.log(this.name);
+}
+
+function Food(name, price) {
+  Product.call(this, name, price);
+  this.category = 'food';
+}
+
+var cheese = new Food('feta', 5);
+cheese.sayName();
+</code></pre><p><img src=/post/2016/images/20160128call/call_error.png alt=call_error></p><p><strong>1.4.2 Using call to invoke an anonymous function.</strong></p><p>通过 call 来调用匿名函数。</p><pre><code>var animals = [
+  { species: 'Lion', name: 'King' },
+  { species: 'Whale', name: 'Fail' }
+];
+
+for (var i = 0; i &lt; animals.length; i++) {
+  (function(i) {
+    this.print = function() {
+      console.log('#' + i + ' ' + this.species
+                  + ': ' + this.name);
+    }
+    this.print();
+  }).call(animals[i], i);
+}
+// #0 Lion: King
+// #1 Whale: Fail
+</code></pre><p><strong>1.4.3 Using call to invoke a function and specifying the context for &rsquo;this&rsquo;.</strong></p><p>通过 call 来调用一个方法，并指定上下文 this。</p><pre><code>function greet() {
+  var reply = [this.person, 'Is An Awesome', this.role].join(' ');
+  console.log(reply);
+}
+
+var i = {
+  person: 'Douglas Crockford', role: 'Javascript Developer'
+};
+
+greet.call(i); // Douglas Crockford Is An Awesome Javascript Developer
+</code></pre><h2 id=2-apply-规范2>2. apply <a href=https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply>规范</a></h2><p>apply 的作用和 call 一样，只是在调用的时候，传参数的方式不同。call 中的参数要一个一个按传进来，而 apply 中的参数是数组的形式。</p><h3 id=21-syntax-语法>2.1 Syntax 语法</h3><pre><code>fun.apply(thisArg, [argsArray])
+</code></pre><h3 id=22-examples-例子>2.2 Examples 例子</h3><p>因为和 call 太相似，这里主要看看例子，感受下不同之处。</p><p><strong>2.2.1 Using apply to chain constructors.</strong></p><p>使用 apply 链构造函数。</p><pre><code>Function.prototype.construct = function (aArgs) {
+  var oNew = Object.create(this.prototype);
+  this.apply(oNew, aArgs);
+  return oNew;
+};
+
+function MyConstructor() {
+  for (var nProp = 0; nProp &lt; arguments.length; nProp++) {
+    this['property' + nProp] = arguments[nProp];
+  }
+}
+
+var myArray = [4, 'Hello world!', false];
+var myInstance = MyConstructor.construct(myArray);
+
+console.log(myInstance.property1);                // logs 'Hello world!'
+console.log(myInstance instanceof MyConstructor); // logs 'true'
+console.log(myInstance.constructor);     
+</code></pre><p><em><em>2.2.2 Using apply and built-in functions</em>.</em>*</p><p>通过 apply 使用内置函数。这个主要是 Math.max / Math.min 之类的内置函数。</p><pre><code>// min/max number in an array
+var numbers = [5, 6, 2, 3, 7];
+
+// using Math.min/Math.max apply
+var max = Math.max.apply(null, numbers); 
+// This about equal to Math.max(numbers[0], ...)
+// or Math.max(5, 6, ...)
+
+var min = Math.min.apply(null, numbers);
+
+// vs. simple loop based algorithm 对比循环方式
+max = -Infinity, min = +Infinity;
+
+for (var i = 0; i &lt; numbers.length; i++) {
+  if (numbers[i] &gt; max) {
+    max = numbers[i];
+  }
+  if (numbers[i] &lt; min) {
+    min = numbers[i];
+  }
+}
+</code></pre><p><strong>2.2.3 Using apply in &ldquo;monkey-patching&rdquo;</strong></p><p>用于猴子补丁（what）？用在哪里？解析说这是一种hack。</p><pre><code>var originalfoo = someobject.foo;
+someobject.foo = function() {
+  // Do stuff before calling function
+  console.log(arguments);
+  // Call the function as it would have been called normally:
+  originalfoo.apply(this, arguments);
+  // Run stuff after, here.
+}
+</code></pre><h2 id=3-bind-规范3>3. bind <a href=https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind>规范</a></h2><p>bind 是 ES5 中新增的一个方法，也是改变运行的上下文。那么与 call 和 apply 有什么区别呢？我们来看看～</p><h3 id=31-定义>3.1 定义</h3><pre><code>The bind() method creates a new function that, when called, has its this keyword set to the provided value, with a given sequence of arguments preceding any provided when the new function is called.
+</code></pre><p>bind 方法在调用的时候，会新建一个函数，参数为 value 和一些列提供的参数，这个函数在调用的时候，this 会设置为参数中的 value（一直翻的不通顺）。</p><h3 id=32-syntax-语法>3.2 Syntax 语法</h3><p><code>fun.bind(thisArg[, arg1[, arg2[, ...]]])</code></p><h4 id=321-parameters-参数>3.2.1 Parameters 参数</h4><p><strong>thisArg</strong></p><pre><code>The value to be passed as the this parameter to the target function when the bound function is called. The value is ignored if the bound function is constructed using the new operator.
+</code></pre><p>当绑定函数在调用的时候，这个值将作为 this 参数传递给目标函数。如果绑定函数使用了 new 操作符，这个值会被忽略。</p><p><strong>arg1, arg2, &mldr;</strong></p><pre><code>Arguments to prepend to arguments provided to the bound function when invoking the target function.
+</code></pre><p>在目标函数调用的时候，传递给绑定函数的参数。</p><h3 id=33-description-描述>3.3 Description 描述</h3><pre><code>The bind() function creates a new function (a bound function) with the same function body (internal call property in ECMAScript 5 terms) as the function it is being called on (the bound function’s target function) with the this value bound to the first argument of bind(), which cannot be overridden. bind() also accepts leading default arguments to provide to the target function when the bound function is called. A bound function may also be constructed using the new operator: doing so acts as though the target function had instead been constructed. The provided this value is ignored, while prepended arguments are provided to the emulated function.
+</code></pre><p>bind 方法在调用的时候，会创建一个新的函数（绑定函数），函数体和调用的函数一样，其中 this 值为 bind 方法的第一个参数，不能被重写。
+绑定函数在调用的时候，也会接受目标函数的默认参数。绑定函数也可以通过 new 操作符构建：就好像目标函数被构建函数替换了（？）。提供的 this 值会被忽略（看不懂）。</p><h3 id=34-examples-例子>3.4 Examples 例子</h3><h4 id=341-creating-a-bound-function>3.4.1 Creating a bound function</h4><p>创建绑定函数。最基本的绑定函数方式。</p><pre><code>this.x = 9; 
+var module = {
+  x: 81,
+  getX: function() { return this.x; }
+};
+
+module.getX(); // 81
+
+var retrieveX = module.getX;
+retrieveX(); // 9, 因为 this 指向全局对象
+
+// 创建一个新的函数，其中 this 指向 module
+var boundGetX = retrieveX.bind(module);
+boundGetX(); // 81
+</code></pre><h4 id=342-partial-functions>3.4.2 Partial Functions</h4><p>部分函数。可以建立有默认参数的函数。</p><pre><code>function list() {
+  return Array.prototype.slice.call(arguments);
+}
+
+var list1 = list(1, 2, 3); // [1, 2, 3]
+
+// 创建一个有预置参数的函数
+var leadingThirtysevenList = list.bind(undefined, 37);
+
+var list2 = leadingThirtysevenList(); // [37]
+var list3 = leadingThirtysevenList(1, 2, 3); // [37, 1, 2, 3]
+</code></pre><h4 id=343-with-settimeout>3.4.3 With setTimeout</h4><p>在调用 setTimeout 时调用。因为在默认的 setTimeout 方法中，this 参数会被设置为全局对象，通过 bind 方法，可以指定 setTimeout 中 this 的值。</p><pre><code>function LateBloomer() {
+  this.petalCount = Math.ceil(Math.random() * 12) + 1;
+}
+
+// 在 bloom 之后格1s，调用 declare 
+LateBloomer.prototype.bloom = function() {
+  window.setTimeout(this.declare.bind(this), 1000);
+};
+
+LateBloomer.prototype.declare = function() {
+  console.log('I am a beautiful flower with ' +
+    this.petalCount + ' petals!');
+};
+
+var flower = new LateBloomer();
+flower.bloom();  // after 1 second, triggers the 'declare' method
+</code></pre><h4 id=344-bound-functions-used-as-constructors-把绑定函数当成构造函数一样使用>3.4.4 Bound functions used as constructors 把绑定函数当成构造函数一样使用</h4><pre><code>TIP：这节介绍的功能属于 bind 方法中的边缘使用，这些使用并不是最佳解决方案，不应该出现在生产环境中。这里简单贴写代码。
+
+function Point(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+Point.prototype.toString = function() { 
+  return this.x + ',' + this.y; 
+};
+
+var p = new Point(1, 2);
+p.toString(); // '1,2'
+
+var emptyObj = {};
+var YAxisPoint = Point.bind(emptyObj, 0/*x*/);
+// not supported in the polyfill below,
+// works fine with native bind:
+var YAxisPoint = Point.bind(null, 0/*x*/);
+
+var axisPoint = new YAxisPoint(5);
+axisPoint.toString(); // '0,5'
+
+axisPoint instanceof Point; // true
+axisPoint instanceof YAxisPoint; // true
+new Point(17, 42) instanceof YAxisPoint; // true
+</code></pre><h4 id=345-creating-shortcuts-创建快捷方式>3.4.5 Creating shortcuts 创建快捷方式</h4><p>当你想创建一个有特殊 this 值的函数快捷方式时，bind 是非常有用的。通过下面的对比就可以知道， bind 创建的方式更加高效。</p><pre><code>// 不使用 bind 的情况
+var slice = Array.prototype.slice;
+
+// ...
+
+slice.apply(arguments);
+
+////////////////////////////////////////////
+
+// 使用 bind 的情况
+var unboundSlice = Array.prototype.slice;
+var slice = Function.prototype.apply.bind(unboundSlice);
+
+// ...
+
+slice(arguments);
+</code></pre><h3 id=35-polyfill>3.5 Polyfill</h3><p>因为 bind 是 ECMA-262 的标准，所以一部分浏览器是不支持的。下面则是让浏览器支持的兼容代码。</p><pre><code>if (!Function.prototype.bind) {
+  Function.prototype.bind = function(oThis) {
+    if (typeof this !== 'function') {
+      // closest thing possible to the ECMAScript 5
+      // internal IsCallable function
+      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+    }
+
+    var aArgs   = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP    = function() {},
+        fBound  = function() {
+          return fToBind.apply(this instanceof fNOP
+                 ? this
+                 : oThis,
+                 aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+    if (this.prototype) {
+      // native functions don't have a prototype
+      fNOP.prototype = this.prototype; 
+    }
+    fBound.prototype = new fNOP();
+
+    return fBound;
+  };
+}
+</code></pre><h3 id=总结>总结</h3><p>到这里，call、apply 和 bind 的介绍就完了。那么，这三者有什么区别和联系呢？</p><p>call 能做的事情，apply 也可以做。但 apply 能做的事情，call 不一定行。然后，apply 可以对内置函数进行巧妙的调用。这两个方法，并没有哪一个是多余的。</p><p>那么 call/apply 和 bind 之间的区别呢？既然有了 call/apply，为什么 ES5 还是增加了 bind ？我们什么时候才应该用 bind ？</p><p><strong>区别</strong>：call/apply 是立刻调用函数的，bind 是返回一个函数，然后可以在其他时候调用。</p><pre><code>var person = {  
+  name: &quot;James Smith&quot;,
+  hello: function(thing) {
+    console.log(this.name + &quot; says hello &quot; + thing);
+  }
+}
+// call
+person.hello.call(person, &quot;world&quot;); // output: James Smith says hello world
+
+// bind
+var helloFunc = person.hello.bind(person);
+helloFunc(&quot;world&quot;);  // output: James Smith says hello world
+</code></pre><p><strong>使用</strong>：bind 一般用在异步调用和事件，下面来看个例子。</p><pre><code>function MyObject(element) {
+    this.elm = element;
+
+    element.addEventListener('click', this.log, false);
+};
+
+MyObject.prototype.log = function(e) {
+     var t = this; 
+     console.log(this);
+};
+
+var submit = document.getElementById(&quot;submit&quot;);
+
+var _obj = new MyObject(submit);
+</code></pre><p>上面例子，在调用的时候，log 方法里面的 this 是什么？想一下。</p><pre><code>// log this: &lt;input type=&quot;button&quot; id=&quot;submit&quot; class=&quot;button&quot; value=&quot;点击&quot;&gt;
+</code></pre><p>是的，log 里面的 this 就是绑定事件的元素。但我们其实想要的是 MyObject 对象，那怎么办呢？加个 bind 就可以了。</p><pre><code>function MyObject(element) {
+    this.elm = element;
+
+    element.addEventListener('click', this.log.bind(this), false);
+};
+
+MyObject.prototype.log = function(e) {
+     var t = this; 
+     console.log(this); // MyObject {elm: input#submit.button}
+};
+
+var submit = document.getElementById(&quot;submit&quot;);
+
+var myO = new MyObject(submit);
+</code></pre><p>嗯，看懂了吧～这三个函数认真琢磨下还是很有用的，快来使用吧。</p></div><footer class=post-footer><div class=post-tags><a href=/tags/js/>js</a>
+<a href=/tags/apply/>apply</a>
+<a href=/tags/call/>call</a>
+<a href=/tags/bind/>bind</a></div><nav class=post-nav><a class=prev href=/post/2016/02-01-year-summary/><i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">我的2015</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/2016/01-26-promise-study-3/><span class="next-text nav-default">Promise初级教程3：解析流程</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
+2013 -
+2022<span class=heart>🥕</span><span>cirplan</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>

@@ -1,0 +1,205 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>Undescore.js和jQuery的类型判断 - Cirplan</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="cirplan"><meta name=description content="Undescore.js和jQuery的类型判断"><meta name=keywords content="js,data type"><link rel=canonical href=https://cirplan.github.io/post/2016/02-19-js-date-type2/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link href=/sass/main.min.4325dd250c3d3e29d579a819f16fd876adbc5a03b3a1b32d2eefe0a067e8f219.css rel=stylesheet><meta property="og:title" content="Undescore.js和jQuery的类型判断"><meta property="og:description" content="Undescore.js和jQuery的类型判断"><meta property="og:type" content="article"><meta property="og:url" content="https://cirplan.github.io/post/2016/02-19-js-date-type2/"><meta property="article:section" content="post"><meta property="article:published_time" content="2016-02-19T22:09:43+08:00"><meta property="article:modified_time" content="2016-02-19T22:09:43+08:00"><meta itemprop=name content="Undescore.js和jQuery的类型判断"><meta itemprop=description content="Undescore.js和jQuery的类型判断"><meta itemprop=datePublished content="2016-02-19T22:09:43+08:00"><meta itemprop=dateModified content="2016-02-19T22:09:43+08:00"><meta itemprop=wordCount content="1516"><meta itemprop=keywords content="js,data type,"><meta name=twitter:card content="summary"><meta name=twitter:title content="Undescore.js和jQuery的类型判断"><meta name=twitter:description content="Undescore.js和jQuery的类型判断"></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>Cirplan</a></div><div class=mobile-navbar-icon id=mobile-navbar-icon><span></span>
+<span></span>
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=https://github.com/cirplan><li class=mobile-menu-item>Github</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>Cirplan</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/cirplan>Github</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>Undescore.js和jQuery的类型判断</h1><div class=post-meta><span class=post-time>2016-02-19</span><div class=post-category><a href=/categories/js/>js</a></div><span class=more-meta>约 1516 字</span>
+<span class=more-meta>预计阅读 4 分钟</span></div></header><div class=post-outdated><div class=warn><p>【注意】最后更新于 <span class=timeago datetime=2016-02-19T22:09:43 title=2016-02-19>2016-02-19, </span>，文中内容可能已过时，请谨慎使用。</p></div></div><div class=post-content><p>记得很久之前，有简单的记录过 js 中的数据类型（<a href=/post/2013/03-02-js-date-type/>点这里</a>）。那么，如何去判断一个变量的数据类型呢？</p><p>先来看看一些判断 bug ：</p><pre><code>typeof null // &quot;object&quot;
+typeof new String('abc') // &quot;object&quot;
+
+var iframeArr = new window.frames[0].Array;
+iframeArr instanceof Array // false
+
+isNaN('abc') // true
+</code></pre><p>所以说，在判断类型的时候，往往不小心就产生了 bug . 那么，怎样才能准确判断数据类型？来看看 <code>undescore.js</code> 和 <code>jQuery</code> 的做法。</p><h2 id=1-underscore-183>1. underscore 1.8.3</h2><p>underscore 提供了一堆判断类型的函数，如下：</p><pre><code>- isArray
+- isObject
+- isArguments
+- isFunction
+- isString
+- isNumber
+- isFinite
+- isBoolean
+- isDate
+- isRegExp
+- isNaN
+- isNull
+- isUndefined
+</code></pre><p>其核心的判断代码如下，利用 <code>Object.prototype.toSting</code>，这个也是业界公认好用的方法：</p><pre><code>// Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError.
+_.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'], function(name) {
+    _['is' + name] = function(obj) {
+        return toString.call(obj) === '[object ' + name + ']';
+    };
+});
+</code></pre><p>下面看看其他判断函数。</p><h3 id=--isarray>- isArray</h3><p>先判断浏览器是否支持原生ES5的 <code>Array.isArray</code> 方法，支持则直接用原生方法判断，不然利用 <code>Object.prototype.toSting</code> 来判断。</p><pre><code>var ObjProto = Object.prototype,
+    toString = ObjProto.toString,
+    nativeIsArray = Array.isArray;
+
+_.isArray = nativeIsArray || function(obj) {
+    return toString.call(obj) === '[object Array]';
+  };
+</code></pre><h3 id=--isobject>- isObject</h3><p>直接用 typeof 判断。不过判断函数的时候，也是 <code>true</code> ? 这样岂不是会和 <code>isFunction</code> 有重叠？</p><pre><code>_.isObject = function(obj) {
+    var type = typeof obj;
+    return type === 'function' || type === 'object' &amp;&amp; !!obj;
+};
+
+// example
+function a () {}
+console.log(_.isObject(a)); // true
+</code></pre><h3 id=--isarguments-低于ie9-版本>- isArguments <code>低于IE9 版本</code></h3><p>直接判断是否有 <code>callee</code> 属性。要注意的是：在 ES5 标准中，严格模式下，函数参数是没有 <code>callee</code> 属性的，详细看<a href=http://stackoverflow.com/questions/103598/why-was-the-arguments-callee-caller-property-deprecated-in-javascript/235760#235760>这里</a>。</p><pre><code>_.has = function(obj, key) {
+    return obj != null &amp;&amp; hasOwnProperty.call(obj, key);
+};
+
+// 在 IE &lt; 9 是没有 [object Arguments] 这个类型的
+if (!_.isArguments(arguments)) {
+    _.isArguments = function(obj) {
+        return _.has(obj, 'callee');
+    };
+}
+</code></pre><h3 id=--isfunction-优化版本>- isFunction <code>优化版本</code></h3><p>这里会有疑问，明明直接用 typeof 判断就可以了，为什么还要加后面的 <code>|| false</code>？注释里说是因为 IE11 (& IE8) 下面的 bug。详情看<a href=https://github.com/jashkenas/underscore/issues/1621>这里</a>。</p><pre><code>// Optimize `isFunction` if appropriate. Work around some typeof bugs in old v8,
+// IE 11 (#1621), and in Safari 8 (#1929).
+if (typeof /./ != 'function' &amp;&amp; typeof Int8Array != 'object') {
+    _.isFunction = function(obj) {
+        return typeof obj == 'function' || false;
+    };
+}
+</code></pre><h3 id=--isfinite>- isFinite</h3><p>判断一个数是否为有限，先看基本的测试：</p><pre><code>isFinite(Infinity);  // false
+isFinite(NaN);       // false
+isFinite(-Infinity); // false
+
+isFinite(0);         // true
+isFinite(2e64);      // true
+isFinite(null);      // true
+
+isFinite(&quot;0&quot;);       // true
+</code></pre><p>再看 underscore.js 中的代码，排除了 NaN 情况：</p><pre><code>_.isFinite = function(obj) {
+    return isFinite(obj) &amp;&amp; !isNaN(parseFloat(obj));
+};
+</code></pre><h3 id=--isnan---isboolean---isnull---isundefined>- isNaN, - isBoolean, - isNull, - isUndefined</h3><p>其他类型判断函数没什么特别的，如下。</p><pre><code>// Is the given value `NaN`? (NaN is the only number which does not equal itself).
+_.isNaN = function(obj) {
+    return _.isNumber(obj) &amp;&amp; obj !== +obj;
+};
+
+// Is a given value a boolean?
+_.isBoolean = function(obj) {
+    return obj === true || obj === false || toString.call(obj) === '[object Boolean]';
+};
+
+// Is a given value equal to null?
+_.isNull = function(obj) {
+    return obj === null;
+};
+
+// Is a given variable undefined?
+_.isUndefined = function(obj) {
+    return obj === void 0;
+};
+</code></pre><h2 id=2-jquery-1112>2. jQuery 1.11.2</h2><p>看看 jQuery 中封装的类型判断接口：</p><pre><code>$.type(obj)
+$.isArray(obj)
+$.isFunction(obj)
+$.isEmptyObject(obj)
+$.isPlainObject(obj)
+$.isWindow(obj)
+$.isNumeric(value)
+</code></pre><p>其核心代码如下，也是采用 <code>Object.prototype.toSting</code> ：</p><pre><code>var class2type = {};
+
+var toString = class2type.toString;
+
+...
+
+jQuery.each(&quot;Boolean Number String Function Array Date RegExp Object Error&quot;.split(&quot; &quot;), function(i, name) {
+    class2type[ &quot;[object &quot; + name + &quot;]&quot; ] = name.toLowerCase();
+});
+
+...
+
+type: function( obj ) {
+    if ( obj == null ) {
+        return obj + &quot;&quot;;
+    }
+    return typeof obj === &quot;object&quot; || typeof obj === &quot;function&quot; ?
+        class2type[ toString.call(obj) ] || &quot;object&quot; :
+        typeof obj;
+},
+</code></pre><p>其中 <code>isArray</code> 和 <code>isFunction</code> 是对 <code>type</code> 函数的进一步封装。</p><pre><code>isFunction: function( obj ) {
+    return jQuery.type(obj) === &quot;function&quot;;
+},
+
+isArray: Array.isArray || function( obj ) {
+    return jQuery.type(obj) === &quot;array&quot;;
+},
+</code></pre><p>下面继续看看其他函数。</p><h3 id=--isemptyobject>- isEmptyObject</h3><p>判断是否为空对象。</p><pre><code>isEmptyObject: function( obj ) {
+    var name;
+    for ( name in obj ) {
+        return false;
+    }
+    return true;
+},
+</code></pre><h3 id=--isplainobject>- isPlainObject</h3><p>这是 jQuery 中特有的方法，判断一个对象是否为纯粹对象（通过 {} 或 new Object() 创建的）。</p><pre><code>var hasOwn = class2type.hasOwnProperty;
+
+...
+
+isPlainObject: function( obj ) {
+    var key;
+
+    // 不能被转为true, 
+    // 类型一定要是[object Object]
+    // 过滤 Dom 节点和 window 对象
+    if ( !obj || jQuery.type(obj) !== &quot;object&quot; || obj.nodeType || jQuery.isWindow( obj ) ) {
+        return false;
+    }
+
+    try {
+        // 没有自己的 constructor 属性的一定为 Object
+        if ( obj.constructor &amp;&amp;
+            !hasOwn.call(obj, &quot;constructor&quot;) &amp;&amp;
+            !hasOwn.call(obj.constructor.prototype, &quot;isPrototypeOf&quot;) ) {
+            return false;
+        }
+    } catch ( e ) {
+        // IE8,9执行上面操作的时候，会报错，也返回 false
+        return false;
+    }
+
+    // Support: IE&lt;9
+    // Handle iteration over inherited properties before own properties.
+    if ( support.ownLast ) {
+        for ( key in obj ) {
+            return hasOwn.call( obj, key );
+        }
+    }
+
+    // 在枚举属性的时候，自身的属性会先被枚举，然后再枚举继承的属性，如果枚举的最后一个属性为自身的，则为 true
+    for ( key in obj ) {}
+
+    return key === undefined || hasOwn.call( obj, key );
+},
+</code></pre><h3 id=--iswindow>- isWindow</h3><p>判断是否为 window 对象。利用 window = window.window 的属性。</p><pre><code>isWindow: function( obj ) {
+    return obj != null &amp;&amp; obj == obj.window;
+},
+</code></pre><h3 id=--isnumeric>- isNumeric</h3><p>判断是否为数字。</p><pre><code>isNumeric: function( obj ) {
+    // parseFloat NaNs numeric-cast false positives (null|true|false|&quot;&quot;)
+    // ...but misinterprets leading-number strings, particularly hex literals (&quot;0x...&quot;)
+    // subtraction forces infinities to NaN
+    // adding 1 corrects loss of precision from parseFloat (#15100)
+    return !jQuery.isArray( obj ) &amp;&amp; (obj - parseFloat( obj ) + 1) &gt;= 0;
+}
+</code></pre><h2 id=总结>总结</h2><p>js 在判断类型的道路上，曾经有很多的尝试，每个类库的判断方式都不同，但自从 <code>Object.prototype.toSting</code> 被挖掘出来后，
+已经变成了公认的判断类型方法。</p><p>把 jQuery 中的 <code>type</code> 方法抽出来如下：</p><pre><code>var typeObj = {} ;
+&quot;Boolean Number String Function Array Date RegExp Object Error&quot;.split(&quot; &quot;).forEach( function (e, i) {
+    typeObj[ &quot;[object &quot; + e + &quot;]&quot; ] = e.toLowerCase();
+});
+
+function _typeof (obj) {
+    if ( obj == null ) {
+        return String( obj );
+    }
+    return typeof obj === &quot;object&quot; || typeof obj === &quot;function&quot; ?
+        typeObj[ typeObj.toString.call(obj) ] || &quot;object&quot; :
+        typeof obj;
+}
+</code></pre><p>这样，在判断类型的时候，就可以直接用这段代码了。</p><h3 id=延伸阅读>延伸阅读</h3><ul><li><a href=https://github.com/lifesinger/blog/issues/175>Sea.js 源码解析（三）</a></li></ul></div><footer class=post-footer><div class=post-tags><a href=/tags/js/>js</a>
+<a href=/tags/data-type/>data type</a></div><nav class=post-nav><a class=prev href=/post/2017/03-13-wx-platform-conect/><i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">使用koa2对接微信公众平台</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/2016/02-01-year-summary/><span class="next-text nav-default">我的2015</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
+2013 -
+2022<span class=heart>🥕</span><span>cirplan</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>

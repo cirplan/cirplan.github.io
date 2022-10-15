@@ -1,0 +1,135 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>js之ajax学习笔记 - Cirplan</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="cirplan"><meta name=description content="js之ajax学习笔记"><meta name=keywords content="js,ajax"><link rel=canonical href=https://cirplan.github.io/post/2013/03-23-ajax-learn/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link href=/sass/main.min.4325dd250c3d3e29d579a819f16fd876adbc5a03b3a1b32d2eefe0a067e8f219.css rel=stylesheet><meta property="og:title" content="js之ajax学习笔记"><meta property="og:description" content="js之ajax学习笔记"><meta property="og:type" content="article"><meta property="og:url" content="https://cirplan.github.io/post/2013/03-23-ajax-learn/"><meta property="article:section" content="post"><meta property="article:published_time" content="2013-03-23T21:10:21+08:00"><meta property="article:modified_time" content="2013-03-23T21:10:21+08:00"><meta itemprop=name content="js之ajax学习笔记"><meta itemprop=description content="js之ajax学习笔记"><meta itemprop=datePublished content="2013-03-23T21:10:21+08:00"><meta itemprop=dateModified content="2013-03-23T21:10:21+08:00"><meta itemprop=wordCount content="1414"><meta itemprop=keywords content="js,ajax,"><meta name=twitter:card content="summary"><meta name=twitter:title content="js之ajax学习笔记"><meta name=twitter:description content="js之ajax学习笔记"></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>Cirplan</a></div><div class=mobile-navbar-icon id=mobile-navbar-icon><span></span>
+<span></span>
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=https://github.com/cirplan><li class=mobile-menu-item>Github</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>Cirplan</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/cirplan>Github</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>js之ajax学习笔记</h1><div class=post-meta><span class=post-time>2013-03-23</span><div class=post-category><a href=/categories/js/>js</a></div><span class=more-meta>约 1414 字</span>
+<span class=more-meta>预计阅读 3 分钟</span></div></header><div class=post-outdated><div class=warn><p>【注意】最后更新于 <span class=timeago datetime=2013-03-23T21:10:21 title=2013-03-23>2013-03-23, </span>，文中内容可能已过时，请谨慎使用。</p></div></div><div class=post-content><h4 id=起源>起源:</h4><p>XHR在IE5中引入，所以在IE中可能会遇到三种不同的版本 <code>MSXML2.XMLHttp.6.0</code>, <code>MSXML2.XMLHttp.3.0</code>，<code>MSXML2.XMLHttp</code>。</p><h4 id=一建立>一、建立</h4><pre><code>适用于IE7之前的版本的创建方式
+//适用于IE7之前的版本
+function createXHR() {
+	if ( typeof arguments.callee.activeXString != &quot;string&quot; ) {
+		var versions = ['MSXML2.XMLHttp.6.0', 'MSXML2.XMLHttp.3.0','MSXML2.XMLHttp'],
+			i, len;
+		for ( i = 0, len = versions.length; i &lt; len; i++){
+			try{
+				new ActiveXObject( versions[i] );
+				arguments.callee.activeXString = versions[i];
+				break;
+			}catch(ex){
+
+			}
+		}
+
+	}
+	return new ActiveXObject( arguments.callee.activeXString );
+}
+</code></pre><p>IE7+、Firefox、Opera、Chrome and Safari 都支持原生XHR</p><pre><code>//IE7+、Firefox、Opera、Chrome and Safari 都支持原生XHR
+var xhr = new XMLHttpRequest();
+
+所以兼容全部浏览器的方式是
+//所以兼容全部浏览器的函数为
+function createXHR() {
+	if ( typeof XMLHttpRequest != &quot;undefined&quot; ) {
+		return new XMLHttpRequest();
+	}else if ( typeof ActiveXObject != &quot;undefined&quot; ) {
+		if ( typeof arguments.callee.activeXString != &quot;string&quot; ) {
+		var versions = ['MSXML2.XMLHttp.6.0', 'MSXML2.XMLHttp.3.0','MSXML2.XMLHttp'],
+			i, len;
+		for ( i = 0, len = versions.length; i &lt; len; i++){
+			try{
+				new ActiveXObject( versions[i] );
+				arguments.callee.activeXString = versions[i];
+				break;
+			}catch(ex){
+
+			}
+		}
+
+	}
+		return new ActiveXObject( arguments.callee.activeXString );
+	} else {
+		throw new Error(&quot;No XHR  object available.&quot;);
+	} 
+}
+</code></pre><h4 id=二xhr的使用>二、XHR的使用</h4><pre><code>1.OPEN()
+//@param type(请求类型)  
+//		 url(请求URL-相对于当前页面，也可以用绝对路径)
+//		 isAsync(是否异步发送)
+//调用open方法不会真正发送请求，只是启动一个请求以备发送
+xhr.open(&quot;get/post&quot;, &quot;example.php&quot;, false);
+</code></pre><p>2.send()方法</p><pre><code>@param body 请求的主体内容，如果没有，设为null
+</code></pre><p>3.返回数据</p><pre><code>responseText 作为响应主体被返回文本
+responseXML 若响应类型为&quot;text/xml&quot;或&quot;application/xml&quot;,这个属性将保存包含响应   数据的XML DOM文档
+status 响应的HTTP状态
+statusText HTTP状态的说明
+</code></pre><p>5.异步发送检测状态</p><pre><code>readyState
+0 --未初始化，尚未调用open();
+1 --启动，已经调用open(),但尚未调用send();
+2 --发送，已经调用send(),但尚未接收到响应;
+3 --接收，已经接收到部分数据;
+4 --完成，已经接收到全部响应数据，可以在客户端使用;
+必须在调用open()之前调用readystatechange事件
+xhr.onreadystatechange = function() {
+	if( xhr.readyState == 4 ) {
+
+	}
+}
+</code></pre><p>三、HTTP头信息</p><p>1.XHR默认请求头部</p><pre><code>Accept: 浏览器能够处理的内容类型
+Accept-Charset: 浏览器能够显示的字符集
+Accept-Encoding: 浏览器能够处理的压缩编码
+Accept-Language: 浏览器当前设置语言
+Connection: 浏览器与服务器之间的链接类型
+Cookie: 当前页面设置的任何Cookie
+Host: 发送请求页面的所在域
+Referer: 发送请求的页面的URI
+User-Agent: 浏览器的用户代理字符串
+</code></pre><p>2.设置头部</p><p>调用<code>setRequestHeader()</code>方法，两个参数，key-value必须在open()之后，send()之前调用注意，有的浏览器允许重写默认头部，有的不允许，所以最好使用自定义头部字段信息。</p><p>3.获取头部字段</p><p>调用<code>getResponseHeader()</code>，参数 &ndash;头部字段<code>getAllResponseHeader()</code>; 获取所有头部长字符串<code>getAllResponse-Headers()</code>; 返回格式化的多行文本。</p><p>4.get请求</p><p>用于某些请求时，把查询字符串参数追加到URL末尾，但必须经过<code>encodeURIComponent()</code>编码</p><pre><code>/** 返回经过encodeURIComponent()编码的url参数
+**@param url
+*		 paramObj 参数对象 key-value
+*/
+function addURLParam(url, paramObj){
+	if ( typeof paramObj != &quot;object&quot; ) return url;
+	var tag = ''''#'''';
+	if ( url.indexOf(&quot;?&quot;) == &quot;-1&quot; ) tag = ''''?'''';
+	for( var key in paramObj ){
+		url += tag + encodeURIComponent( key ) + &quot;=&quot; + encodeURIComponent( paramObj[key] );
+		if( tag != ''''#'''' ) tag = ''''#'''';
+	}
+	return url;
+}
+
+var url = ''''http://www.baidu.com''''; 
+var paramObj = {&quot;key1&quot;:&quot;value1&quot;, &quot;key2&quot;:&quot;value2&quot;, &quot;key3&quot;:&quot;value3&quot;};
+addURLParam( url , paramObj );// &quot;http://www.baidu.com?key1=value1#key2=value2#key3=value3&quot;
+
+var url = ''''http://www.baidu.com''''; 
+var paramObj = {&quot;key1&quot;:&quot;ss ss&quot;, &quot;key2&quot;:&quot;wqe2v&quot;, &quot;key3&quot;:&quot;sda/sa&quot;};
+addURLParam( url , paramObj );//&quot;http://www.baidu.com?key1=ss%20ss#key2=wqe%02v#key3=sda%2Fsa&quot;
+</code></pre><p>5.post请求</p><p>模仿表单提交&ndash;设置<code>Content-Type</code> 为 <code>application/x-www-form-urlencoded</code>:</p><pre><code>var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function(){
+	if ( xhr.readyState == 4 ){
+	 		console.log( xhr.responseText );
+		}
+	};
+	xhr.open(&quot;post&quot;, &quot;/hdzx/eventgetKTVEventList.action&quot;, true);
+	xhr.setRequestHeader(&quot;Content-Type&quot;,&quot;application/x-www-form-urlencoded&quot;);
+	xhr.send(&quot;id: 196, opt: 1, page:1&quot;);
+
+// Accept:*/*
+// Accept-Charset:GBK,utf-8;q=0.7,*;q=0.3
+// Accept-Encoding:gzip,deflate,sdch
+// Accept-Language:zh-CN,zh;q=0.8
+// Connection:keep-alive
+// Content-Length:19
+// Content-Type:application/x-www-form-urlencoded
+// Cookie:cityID=202; JSESSIONID=C5D1BFB15CD2425E873A6CB35D153B46
+// Host:www.minifang.cn
+// Origin:http://www.minifang.cn
+// Referer:http://www.minifang.cn/ktv/196.html
+// User-Agent:Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.33 (KHTML, like Gecko) Chrome/27.0.1438.7 Safari/537.33
+</code></pre><p><code>注意：get请求的速度最多可达post请求的两倍</code></p></div><footer class=post-footer><div class=post-tags><a href=/tags/js/>js</a>
+<a href=/tags/ajax/>ajax</a></div><nav class=post-nav><a class=prev href=/post/2013/12-22-life-rule/><i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">无规矩不成方圆</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/2013/03-16-ie-inline-block/><span class="next-text nav-default">IE6/IE7下：inline-block解决方案</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
+2013 -
+2022<span class=heart>🥕</span><span>cirplan</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>
