@@ -1,2 +1,2 @@
 User-agent: *
-Sitemap: https://cirplan.github.io/sitemap.xml
+Sitemap: https://cirplan.me/sitemap.xml
