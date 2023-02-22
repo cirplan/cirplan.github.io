@@ -136,13 +136,13 @@
 </span><span class=lnt>10
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// url.js
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>define</span><span class=p>(</span><span class=kd>function</span> <span class=p>(){</span>
-</span></span><span class=line><span class=cl>　　<span class=kd>var</span> <span class=nx>getId</span> <span class=o>=</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>key</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=err>　　</span><span class=kd>var</span> <span class=nx>getId</span> <span class=o>=</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>key</span><span class=p>)</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>      <span class=p>...</span>
 </span></span><span class=line><span class=cl>    <span class=p>};</span>
 </span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>　　<span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=err>　　</span><span class=k>return</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>        <span class=nx>getId</span><span class=o>:</span> <span class=nx>getId</span>
-</span></span><span class=line><span class=cl>　　<span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=err>　　</span><span class=p>};</span>
 </span></span><span class=line><span class=cl><span class=p>});</span>
 </span></span></code></pre></td></tr></table></div></div><p>使用方法如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
@@ -150,7 +150,7 @@
 </span><span class=lnt>4
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=c1>// main.js
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>require</span><span class=p>([</span><span class=s1>&#39;url&#39;</span><span class=p>],</span> <span class=kd>function</span> <span class=p>(</span><span class=nx>url</span><span class=p>){</span>
-</span></span><span class=line><span class=cl>　　<span class=nx>alert</span><span class=p>(</span><span class=nx>url</span><span class=p>.</span><span class=nx>getId</span><span class=p>(</span><span class=s1>&#39;index&#39;</span><span class=p>));</span>
+</span></span><span class=line><span class=cl><span class=err>　　</span><span class=nx>alert</span><span class=p>(</span><span class=nx>url</span><span class=p>.</span><span class=nx>getId</span><span class=p>(</span><span class=s1>&#39;index&#39;</span><span class=p>));</span>
 </span></span><span class=line><span class=cl><span class=p>});</span>
 </span></span></code></pre></td></tr></table></div></div><p>若定义有依赖的模块：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
@@ -250,7 +250,7 @@
 </span></span><span class=line><span class=cl>    <span class=p>},</span>
 </span></span><span class=line><span class=cl>    <span class=nx>shim</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span><span class=o>:</span><span class=p>{</span>
-</span></span><span class=line><span class=cl>        　　<span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=err>　　</span><span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
 </span></span><span class=line><span class=cl>        <span class=p>}</span>
 </span></span><span class=line><span class=cl>    <span class=p>}</span>
 </span></span><span class=line><span class=cl><span class=p>};</span>
@@ -277,13 +277,13 @@
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>optimize</span><span class=o>:</span> <span class=s1>&#39;none&#39;</span><span class=p>,</span> <span class=c1>// 压缩方式：不压缩
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// path和shim配置要和config.js一样
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>paths</span><span class=o>:</span> <span class=p>{</span> 
-</span></span><span class=line><span class=cl>　　　　　　<span class=s2>&#34;zepto&#34;</span><span class=o>:</span> <span class=s2>&#34;lib/zepto&#34;</span><span class=p>,</span>
-</span></span><span class=line><span class=cl>　　　　　　<span class=s2>&#34;url&#34;</span><span class=o>:</span> <span class=s2>&#34;util/url&#34;</span>
-</span></span><span class=line><span class=cl>　　 <span class=p>},</span>
+</span></span><span class=line><span class=cl><span class=err>　　　　　　</span><span class=s2>&#34;zepto&#34;</span><span class=o>:</span> <span class=s2>&#34;lib/zepto&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=err>　　　　　　</span><span class=s2>&#34;url&#34;</span><span class=o>:</span> <span class=s2>&#34;util/url&#34;</span>
+</span></span><span class=line><span class=cl><span class=err>　　</span> <span class=p>},</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>    <span class=nx>shim</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span><span class=o>:</span><span class=p>{</span>
-</span></span><span class=line><span class=cl>        　　<span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=err>　　</span><span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
 </span></span><span class=line><span class=cl>        <span class=p>}</span>
 </span></span><span class=line><span class=cl>    <span class=p>},</span>
 </span></span><span class=line><span class=cl>
@@ -373,13 +373,13 @@
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>optimize</span><span class=o>:</span> <span class=s1>&#39;none&#39;</span><span class=p>,</span> <span class=c1>// 压缩方式：不压缩
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// path和shim配置要和config.js一样
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>paths</span><span class=o>:</span> <span class=p>{</span> 
-</span></span><span class=line><span class=cl>　　　　　　<span class=s2>&#34;zepto&#34;</span><span class=o>:</span> <span class=s2>&#34;lib/zepto&#34;</span><span class=p>,</span>
-</span></span><span class=line><span class=cl>　　　　　　<span class=s2>&#34;url&#34;</span><span class=o>:</span> <span class=s2>&#34;util/url&#34;</span>
-</span></span><span class=line><span class=cl>　　 <span class=p>},</span>
+</span></span><span class=line><span class=cl><span class=err>　　　　　　</span><span class=s2>&#34;zepto&#34;</span><span class=o>:</span> <span class=s2>&#34;lib/zepto&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=err>　　　　　　</span><span class=s2>&#34;url&#34;</span><span class=o>:</span> <span class=s2>&#34;util/url&#34;</span>
+</span></span><span class=line><span class=cl><span class=err>　　</span> <span class=p>},</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>    <span class=nx>shim</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span><span class=o>:</span><span class=p>{</span>
-</span></span><span class=line><span class=cl>        　　<span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=err>　　</span><span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
 </span></span><span class=line><span class=cl>        <span class=p>}</span>
 </span></span><span class=line><span class=cl>    <span class=p>},</span>
 </span></span><span class=line><span class=cl>
@@ -440,13 +440,13 @@
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>optimize</span><span class=o>:</span> <span class=s1>&#39;none&#39;</span><span class=p>,</span> <span class=c1>// 压缩方式：不压缩
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// path和shim配置要和config.js一样
 </span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>paths</span><span class=o>:</span> <span class=p>{</span> 
-</span></span><span class=line><span class=cl>　　　　　　<span class=s2>&#34;zepto&#34;</span><span class=o>:</span> <span class=s2>&#34;lib/zepto&#34;</span><span class=p>,</span>
-</span></span><span class=line><span class=cl>　　　　　　<span class=s2>&#34;url&#34;</span><span class=o>:</span> <span class=s2>&#34;util/url&#34;</span>
-</span></span><span class=line><span class=cl>　　 <span class=p>},</span>
+</span></span><span class=line><span class=cl><span class=err>　　　　　　</span><span class=s2>&#34;zepto&#34;</span><span class=o>:</span> <span class=s2>&#34;lib/zepto&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=err>　　　　　　</span><span class=s2>&#34;url&#34;</span><span class=o>:</span> <span class=s2>&#34;util/url&#34;</span>
+</span></span><span class=line><span class=cl><span class=err>　　</span> <span class=p>},</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>    <span class=nx>shim</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span><span class=o>:</span><span class=p>{</span>
-</span></span><span class=line><span class=cl>        　　<span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=err>　　</span><span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
 </span></span><span class=line><span class=cl>        <span class=p>}</span>
 </span></span><span class=line><span class=cl>    <span class=p>},</span>
 </span></span><span class=line><span class=cl>
@@ -518,7 +518,7 @@
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>    <span class=nx>shim</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>        <span class=s1>&#39;zepto&#39;</span><span class=o>:</span><span class=p>{</span>
-</span></span><span class=line><span class=cl>        　　<span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=err>　　</span><span class=nx>exports</span><span class=o>:</span> <span class=s1>&#39;Zepto&#39;</span>
 </span></span><span class=line><span class=cl>        <span class=p>}</span>
 </span></span><span class=line><span class=cl>    <span class=p>}</span>
 </span></span><span class=line><span class=cl><span class=p>};</span>
@@ -539,4 +539,4 @@
 <span class="next-text nav-mobile">下一篇</span>
 <i class="iconfont icon-right"></i></a></nav></footer></article></div></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
 2013 -
-2022<span class=heart>🥕</span><span>cirplan</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>
+2023<span class=heart>🥕</span><span>cirplan</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>

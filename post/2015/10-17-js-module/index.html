@@ -42,7 +42,7 @@ JS文件报错了？之前不是用的没问题吗？应该是出BUG了，看下
 </span></span><span class=line><span class=cl>  <span class=nx>_count</span> <span class=o>:</span> <span class=mi>0</span><span class=p>,</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>  <span class=nx>m1</span> <span class=o>:</span> <span class=kd>function</span> <span class=p>(){</span>
-</span></span><span class=line><span class=cl>  　　　<span class=c1>//...
+</span></span><span class=line><span class=cl>  <span class=err>　　　</span><span class=c1>//...
 </span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=p>},</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>  <span class=nx>m2</span> <span class=o>:</span> <span class=kd>function</span> <span class=p>(){</span>
@@ -64,24 +64,24 @@ JS文件报错了？之前不是用的没问题吗？应该是出BUG了，看下
 </span><span class=lnt>13
 </span><span class=lnt>14
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=kd>var</span> <span class=nx>module1</span> <span class=o>=</span> <span class=p>(</span><span class=kd>function</span><span class=p>(){</span>
-</span></span><span class=line><span class=cl>　　<span class=kd>var</span> <span class=nx>_count</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
-</span></span><span class=line><span class=cl>　　<span class=kd>var</span> <span class=nx>m1</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(){</span>
-</span></span><span class=line><span class=cl>　　　　<span class=c1>//...
-</span></span></span><span class=line><span class=cl><span class=c1></span>　　<span class=p>};</span>
-</span></span><span class=line><span class=cl>　　<span class=kd>var</span> <span class=nx>m2</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(){</span>
-</span></span><span class=line><span class=cl>　　　　<span class=c1>//...
-</span></span></span><span class=line><span class=cl><span class=c1></span>　　<span class=p>};</span>
-</span></span><span class=line><span class=cl>　　<span class=k>return</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>　　　　<span class=nx>m1</span> <span class=o>:</span> <span class=nx>m1</span><span class=p>,</span>
-</span></span><span class=line><span class=cl>　　　　<span class=nx>m2</span> <span class=o>:</span> <span class=nx>m2</span>
-</span></span><span class=line><span class=cl>　　<span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=err>　　</span><span class=kd>var</span> <span class=nx>_count</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=err>　　</span><span class=kd>var</span> <span class=nx>m1</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl><span class=err>　　　　</span><span class=c1>//...
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=err>　　</span><span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=err>　　</span><span class=kd>var</span> <span class=nx>m2</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl><span class=err>　　　　</span><span class=c1>//...
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=err>　　</span><span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=err>　　</span><span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=err>　　　　</span><span class=nx>m1</span> <span class=o>:</span> <span class=nx>m1</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=err>　　　　</span><span class=nx>m2</span> <span class=o>:</span> <span class=nx>m2</span>
+</span></span><span class=line><span class=cl><span class=err>　　</span><span class=p>};</span>
 </span></span><span class=line><span class=cl><span class=p>})();</span>
 </span></span><span class=line><span class=cl><span class=nx>console</span><span class=p>.</span><span class=nx>info</span><span class=p>(</span><span class=nx>module1</span><span class=p>.</span><span class=nx>_count</span><span class=p>);</span> <span class=c1>//undefined
 </span></span></span></code></pre></td></tr></table></div></div><p>这样对象内部属性就修改不了。但这样看不出模块之间的依赖。</p><p><strong>c. 输入全局变量</strong></p><p>显式地将其他变量输入模块，可以明确模块依赖。ex：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-js data-lang=js><span class=line><span class=cl><span class=kd>var</span> <span class=nx>module1</span> <span class=o>=</span> <span class=p>(</span><span class=kd>function</span> <span class=p>(</span><span class=nx>$</span><span class=p>,</span> <span class=nx>YAHOO</span><span class=p>)</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>　　<span class=c1>//...
+</span></span><span class=line><span class=cl><span class=err>　　</span><span class=c1>//...
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>})(</span><span class=nx>jQuery</span><span class=p>,</span> <span class=nx>YAHOO</span><span class=p>);</span>
 </span></span></code></pre></td></tr></table></div></div><p>在没有模块加载器的情况下，这样算是比较好的解决方案了。一方面限制了变量作用域，另外显示把依赖输入模块，一目了然。</p><h1 id=2模块化的发展历程>2.模块化的发展历程</h1><p>参考玉伯的<a href=https://github.com/seajs/seajs/issues/588>前端模块化开发那点历史</a>。</p><p>在2009年，ServerJS诞生了，其社区推出<a href=http://wiki.commonjs.org/wiki/Modules>Modules/1.0</a>规范，Node.js采用部分该规范并获得不错的效果。ex:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
@@ -139,4 +139,4 @@ JS文件报错了？之前不是用的没问题吗？应该是出BUG了，看下
 <span class="next-text nav-mobile">下一篇</span>
 <i class="iconfont icon-right"></i></a></nav></footer></article></div></div></main><footer id=footer class=footer><div class=copyright><span class=copyright-year>&copy;
 2013 -
-2022<span class=heart>🥕</span><span>cirplan</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>
+2023<span class=heart>🥕</span><span>cirplan</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script>window.onload=function(){const e="fixed-open",n="slideout-open",s="icon-click",t=document.querySelector("#mobile-navbar-icon");t.addEventListener("click",o=>{const i=document.querySelector("#mobile-navbar"),a=document.querySelector("#mobile-panel");i.classList.contains(e)?(i.classList.remove(e),a.classList.remove(e),t.classList.remove(s),document.documentElement.classList.remove(n)):(i.classList.add(e),a.classList.add(e),t.classList.add(s),document.documentElement.classList.add(n))})}</script></body></html>
